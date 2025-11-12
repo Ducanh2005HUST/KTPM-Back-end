@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Quản Lý Thu Phí & Đóng Góp</h2>
+
+<div class="fee-tabs">
+    <button class="tab-btn active" data-tab="fee">Thu phí vệ sinh</button>
+    <button class="tab-btn" data-tab="donation">Đóng góp</button>
+</div>
+
+<div class="fee-container">
+    <!-- Thu phí vệ sinh -->
+    <section id="tab-fee" class="fee-panel active">
+        <div class="fee-form">
+            <div class="row">
+                <label>Chọn hộ gia đình</label>
+                <!-- select sẽ được populate từ JS -->
+                <select id="feeHousehold" aria-label="Chọn hộ gia đình"></select>
+            </div>
+
+            <div class="row">
+                <label>Số nhân khẩu</label>
+                <!-- readonly: lấy từ dữ liệu hộ, không nhập tay -->
+                <input type="number" id="feeMembers" value="1" min="1" readonly>
+                <label>Tháng thu</label>
+                <input type="month" id="feeMonth">
+            </div>
+
+            <div class="row">
+                <label>Số tiền (6.000đ/người/tháng)</label>
+                <input type="text" id="feeAmount" readonly>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="addFee" class="btn primary">Lập phiếu thu</button>
+                <button type="button" id="printFee" class="btn">In phiếu thu</button>
+            </div>
+        </div>
+
+        <div class="list-panel">
+            <h3>Phiếu thu gần đây</h3>
+            <div class="table-container">
+                <table class="fee-table">
+                    <thead>
+                        <tr>
+                            <th>Số hộ khẩu</th>
+                            <th>Chủ hộ</th>
+                            <th>Số nhân khẩu</th>
+                            <th>Tháng</th>
+                            <th>Số tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feeList">
+                        <tr>
+                            <td>HK-001</td>
+                            <td>Nguyễn Văn A</td>
+                            <td>4</td>
+                            <td>10/2025</td>
+                            <td>24.000đ</td>
+                            <td><span class="status paid">Đã thu</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Đóng góp (giữ nguyên) -->
+    <section id="tab-donation" class="fee-panel">
+        <div class="fee-form">
+            <div class="row">
+                <label>Chọn đợt đóng góp</label>
+                <select id="donationType">
+                    <option>Ủng hộ ngày thương binh-liệt sỹ 27/07</option>
+                    <option>Ủng hộ ngày tết thiếu nhi</option>
+                    <option>Ủng hộ vì người nghèo</option>
+                    <option>Trợ giúp đồng bào bị ảnh hưởng bão lụt</option>
+                </select>
+            </div>
+            <div class="row">
+                <label>Hộ gia đình</label>
+                <input type="text" id="donationHousehold" placeholder="Nhập số hộ khẩu / tên chủ hộ">
+            </div>
+            <div class="row">
+                <label>Số tiền đóng góp</label>
+                <input type="number" id="donationAmount" placeholder="Nhập số tiền">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="addDonation" class="btn primary">Ghi nhận</button>
+                <button type="button" id="printDonation" class="btn">In biên nhận</button>
+            </div>
+        </div>
+
+        <div class="list-panel">
+            <h3>Thống kê đóng góp</h3>
+            <div class="table-container">
+                <table class="fee-table">
+                    <thead>
+                        <tr>
+                            <th>Đợt đóng góp</th>
+                            <th>Số hộ tham gia</th>
+                            <th>Tổng số tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="donationList">
+                        <tr>
+                            <td>Ủng hộ ngày thương binh-liệt sỹ 27/07</td>
+                            <td>125 hộ</td>
+                            <td>12.500.000đ</td>
+                            <td><button class="btn-sm">Chi tiết</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- thay thẻ script inline bằng file JS tách riêng -->
+<script src="{% static 'js/thuphi.js' %}" defer></script>
+
+{% endblock %}

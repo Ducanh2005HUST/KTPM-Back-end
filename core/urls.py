@@ -9,4 +9,9 @@ router.register(r'payments', views.PaymentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path("home/", views.home, name="home"),
+    path("qlnk/", views.qlnk, name="qlnk"),
+    path("qltv_tt/", views.qltv_tt, name="qltv_tt"),
+    path("thuphi/", views.thuphi, name="thuphi"),
+    path("thongke_baocao/", views.thongke_baocao, name="thongke_baocao"),
 ]

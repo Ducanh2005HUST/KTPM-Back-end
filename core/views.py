@@ -5,6 +5,10 @@ from django.db.models.functions import TruncMonth
 from django.db.models import Sum
 from .models import Household, Person, Payment
 from .serializers import HouseholdSerializer, PersonSerializer, PaymentSerializer
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 class HouseholdViewSet(viewsets.ModelViewSet):
     queryset = Household.objects.all().order_by('code')
@@ -26,3 +30,23 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def summary_by_month(self, request):
         qs = Payment.objects.filter(status='PAID').annotate(month=TruncMonth('created_at')).values('month').annotate(total=Sum('amount')).order_by('month')
         return Response(list(qs))
+
+def home(request):
+    return render(request, "home.html")
+
+
+def qlnk(request):
+    return render(request, "qlnk.html")
+
+
+def qltv_tt(request):
+    return render(request, "qltv_tt.html")
+
+
+def thuphi(request):
+    return render(request, "thuphi.html")
+
+
+def thongke_baocao(request):
+    return render(request, "thongke_baocao.html")
+

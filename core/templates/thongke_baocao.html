@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Thống kê & Báo cáo</h2>
+
+<div class="report-controls">
+    <div class="filter-row">
+        <label>Khoảng thời gian
+            <input type="month" id="fromMonth">
+            <span>→</span>
+            <input type="month" id="toMonth">
+        </label>
+
+        <label>Loại báo cáo
+            <select id="reportType">
+                <option value="all">Tổng quan</option>
+                <option value="nhankhau">Nhân khẩu</option>
+                <option value="thuphi">Thu phí</option>
+            </select>
+        </label>
+
+        <div class="actions">
+            <button id="applyBtn" class="btn">Áp dụng</button>
+            <button id="exportCsv" class="btn">Xuất CSV</button>
+            <button id="exportPng" class="btn">Tải biểu đồ (PNG)</button>
+        </div>
+    </div>
+</div>
+
+<div class="reports-grid">
+     <div class="card">
+         <h3>Nhân khẩu theo nhóm tuổi</h3>
+         <canvas id="ageChart"></canvas>
+     </div>
+ 
+     <div class="card wide">
+         <h3>Thu phí theo tháng</h3>
+         <canvas id="feeChart"></canvas>
+     </div>
+ 
+     <div class="card">
+         <h3>Top hộ đóng góp (mẫu)</h3>
+         <table class="table-basic" id="topContributors">
+             <thead>
+                 <tr><th>Hộ khẩu</th><th>Chủ hộ</th><th>Tổng đóng góp</th></tr>
+             </thead>
+             <tbody>
+                 <!-- will be populated by JS -->
+             </tbody>
+         </table>
+     </div>
+ </div>
+
+<!-- keep Chart.js CDN, then load extracted script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/thongke_baocao.js' %}" defer></script>
+
+{% endblock %}
