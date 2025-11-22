@@ -50,3 +50,14 @@ def thuphi(request):
 def thongke_baocao(request):
     return render(request, "thongke_baocao.html")
 
+def quanly_truycap(request):
+    return render(request, "quanly_truycap.html")
+
+def sohokhau(request):
+    return render(request, "sohokhau.html")
+
+def nhankhau(request):
+    return render(request, "nhankhau.html")
+
+def themnk(request):
+    return render(request, "themnk.html")

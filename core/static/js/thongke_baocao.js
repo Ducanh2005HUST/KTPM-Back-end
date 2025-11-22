@@ -44,6 +44,55 @@ document.addEventListener('DOMContentLoaded', function(){
         tbody.appendChild(tr);
     });
 
+    // --- Density chart (age distribution by gender) ---
+    // synthetic per-age distributions (0..90)
+    function gauss(x, mu, sigma) { return Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2)); }
+    const ages = Array.from({length:91}, (_,i)=>i);
+    const femaleScale = 100, maleScale = 95;
+    const femaleMean = 25, femaleSd = 7;
+    const maleMean = 38, maleSd = 12;
+    const femaleData = ages.map(a=>Math.round(femaleScale * gauss(a, femaleMean, femaleSd)));
+    const maleData = ages.map(a=>Math.round(maleScale * gauss(a, maleMean, maleSd)));
+
+    const densityCtx = document.getElementById('densityChart')?.getContext('2d');
+    if (densityCtx) {
+        const peakPlugin = {
+            id: 'peakPluginDensity',
+            afterDraw(chart){
+                const {ctx, scales} = chart;
+                const fIdx = femaleData.indexOf(Math.max(...femaleData));
+                const mIdx = maleData.indexOf(Math.max(...maleData));
+                const xF = scales.x.getPixelForValue(String(fIdx));
+                const yF = scales.y.getPixelForValue(femaleData[fIdx]);
+                const xM = scales.x.getPixelForValue(String(mIdx));
+                const yM = scales.y.getPixelForValue(maleData[mIdx]);
+                ctx.save();
+                ctx.font = '20px sans-serif';
+                ctx.fillStyle = 'rgba(219,39,119,0.95)'; ctx.fillText('♀', xF - 8, yF - 10);
+                ctx.fillStyle = 'rgba(59,130,246,0.95)'; ctx.fillText('♂', xM - 8, yM - 10);
+                ctx.restore();
+            }
+        };
+
+        new Chart(densityCtx, {
+            type: 'line',
+            data: {
+                labels: ages.map(String),
+                datasets: [
+                    { label: 'Nữ', data: femaleData, borderColor:'rgba(219,39,119,1)', backgroundColor:'rgba(219,39,119,0.35)', tension:0.45, fill:true, pointRadius:0, borderWidth:2 },
+                    { label: 'Nam', data: maleData, borderColor:'rgba(59,130,246,1)', backgroundColor:'rgba(59,130,246,0.28)', tension:0.45, fill:true, pointRadius:0, borderWidth:2 }
+                ]
+            },
+            options: {
+                plugins: { legend:{ position:'top' }, tooltip:{ mode:'index', intersect:false } },
+                interaction:{ mode:'nearest', axis:'x', intersect:false },
+                scales: { x:{ title:{ display:true, text:'Tuổi' }, ticks:{ maxTicksLimit: 16 } }, y:{ beginAtZero:true, title:{ display:true, text:'Mật độ / Số người' } } },
+                maintainAspectRatio:false
+            },
+            plugins:[peakPlugin]
+        });
+    }
+
     // Export PNG: vẽ 2 canvas cạnh nhau với kích thước bằng nhau
     const exportPngBtn = document.getElementById('exportPng');
     if (exportPngBtn) {
