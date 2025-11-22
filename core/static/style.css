@@ -28,6 +28,13 @@ body {
     flex-direction: column;
 }
 
+/* Make the menu fill the sidebar so items can be pushed to the bottom */
+.menu {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -139,6 +146,34 @@ body {
     justify-content: center;
     font-weight: bold;
 }
+
+/* User menu dropdown in header */
+.user-menu { position: relative; }
+.user-menu .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background:#007bff; color:#fff; font-weight:700; cursor:pointer; border: none;
+    display: inline-flex; align-items:center; justify-content:center;
+}
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    min-width: 220px;
+    background: #fff;
+    color: #111827;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: none;
+    z-index: 50;
+}
+/* header/avatar/name styles removed */
+.dropdown-item { display:flex; gap:12px; align-items:center; padding:10px 14px; color: #111827; text-decoration:none; font-size:14px; }
+.dropdown-item i { width:18px; text-align:center; color:#6b7280; }
+.dropdown-item:hover { background:#f3f4f6; }
+.dropdown-divider { height:1px; background:#e6e9ef; margin:6px 0; }
+
+/* show dropdown when active */
+.user-menu.open .user-dropdown { display: block; }
 
 /* --- Content Area --- */
 .content-area {
@@ -609,6 +644,162 @@ body {
     gap: 20px;
 }
 
+/* --- Access Management (quanly_truycap) styles --- */
+.content-area h2 {
+    margin-bottom: 12px;
+    color: #0b57d0;
+}
+
+/* More specific title style for quanly_truycap page */
+.content-area h2.page-title {
+    color: #000; /* black title for Quản lý tài khoản */
+}
+
+.quanly-panel {
+    background: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(20,30,43,0.04);
+    border: 1px solid #f1f5f9;
+}
+
+.form-group {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #e6e9ef;
+    background: #fff;
+    font-size: 14px;
+}
+
+.permission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0 16px;
+}
+
+.perm-item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+}
+
+.perm-item input[type="checkbox"] {
+    transform: scale(1.05);
+}
+
+.perm-badge {
+    display: inline-block;
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+.table-basic {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-basic th {
+    background: #f8fafc;
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #1f2937;
+    border-bottom: 1px solid #e6e9ef;
+}
+
+.table-basic td {
+    padding: 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #111827;
+}
+
+/* Action button styling inside panels */
+.panel .btn.primary {
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+@media (max-width: 900px) {
+    .dashboard-panels { grid-template-columns: 1fr; }
+    .perm-item { flex-wrap: wrap; }
+    .panel-header h3 { font-size: 15px; }
+}
+
+/* --- Sohokhau (Household Management) Additional Styles --- */
+.btn-sm {
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    border: 1px solid #e6e9ef;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.btn-sm:hover {
+    background: #e5e7eb;
+}
+
+.filter-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.filter-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: #374151;
+    font-weight: 600;
+}
+
+.filter-row input {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #e6e9ef;
+    background: #fff;
+    width: 200px;
+}
+
+.checkbox-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+}
+
+.checkbox-inline input[type="checkbox"] {
+    transform: scale(1.1);
+}
+
+/* Additional panel body padding */
+.panel-body {
+    padding: 16px;
+}
+
+
 .panel {
     background: #fff;
     border-radius: 12px;
@@ -778,4 +969,140 @@ body {
 }
 
 /* end qltv_tt styles */
+
+/* --- Sidebar profile card --- */
+.profile-card {
+    margin-top: auto; /* stick to bottom of menu */
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.profile-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+.profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #007bff; /* soft peach fallback */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+.profile-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+}
+.profile-role {
+    color: #9aa3b2;
+    font-size: 12px;
+}
+
+/* --- Sổ hộ khẩu (sohokhau) styles --- */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Quản lý nhân khẩu (nhankhau) additional styles --- */
+.person-details {
+    max-width: 600px;
+}
+
+.detail-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.detail-section h4 {
+    margin: 0 0 16px 0;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-item label {
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.detail-item span {
+    color: #1f2937;
+    font-size: 15px;
+}
+
+/* Pagination styles */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+#pageInfo {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Enhanced table styles for person list */
+.table-basic tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-basic .btn-sm {
+    margin-right: 4px;
+}
+
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
 

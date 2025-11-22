@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load perms_extras %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/quanly_truycap.css' %}">
+
+<div class="content-area">
+    <h2 class="page-title">Quản lý tài khoản</h2>
+    <!-- <p>Trang này dùng để tạo tài khoản và phân quyền cho các chức năng trong menu.</p> -->
+
+    <div class="dashboard-panels">
+        <div class="panel">
+            <div class="panel-header"><h3>Tạo tài khoản & phân quyền</h3></div>
+            <div class="panel-body">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_user">
+
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        <input name="username" required class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mật khẩu</label>
+                        <input name="password" type="password" required class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="is_staff"> Cho phép đăng nhập vào trang quản trị (staff)
+                        </label>
+                    </div>
+
+                    <h4>Chọn chức năng được phép</h4>
+                    <div class="permission-list">
+                        <label class="perm-item">
+                            <input type="checkbox" name="perm_manage_household">
+                            <strong>Quản lý nhân khẩu</strong>
+                        </label>
+
+                        <label class="perm-item">
+                            <input type="checkbox" name="perm_manage_fees">
+                            <strong>Quản lý thu phí</strong>
+                        </label>
+
+                        <label class="perm-item">
+                            <input type="checkbox" name="perm_manage_temp_residence">
+                            <strong>Quản lý tạm vắng / tạm trú</strong>
+                        </label>
+
+                        <label class="perm-item">
+                            <input type="checkbox" name="perm_reports">
+                            <strong>Thống kê & Báo cáo</strong>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button class="btn primary" type="submit">Tạo tài khoản</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header"><h3>Danh sách người dùng</h3></div>
+            <div class="panel-body">
+                <table class="table-basic">
+                    <thead>
+                        <tr><th>Tài khoản</th><th>Quyền</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.username }}</td>
+                            <td>
+                                {% for p in permissions %}
+                                    {% if assignments|dict_get:u.id|dict_get:p.key %}
+                                        <span class="perm-badge">{{ p.name }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
