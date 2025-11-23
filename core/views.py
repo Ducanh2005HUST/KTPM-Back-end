@@ -6,7 +6,7 @@ from django.db.models import Sum
 from .models import Household, Person, Payment
 from .serializers import HouseholdSerializer, PersonSerializer, PaymentSerializer
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -61,3 +61,25 @@ def nhankhau(request):
 
 def themnk(request):
     return render(request, "themnk.html")
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        remember_me = request.POST.get('remember_me')
+        
+        # Simple authentication (you can integrate with Django auth later)
+        if username == 'admin' and password == 'admin123':
+            # Set session or redirect to dashboard
+            request.session['user_logged_in'] = True
+            request.session['username'] = username
+            
+            if not remember_me:
+                request.session.set_expiry(0)  # Session expires when browser closes
+            
+            return redirect('home')
+        else:
+            from django.contrib import messages
+            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không chính xác!')
+    
+    return render(request, 'login.html')
