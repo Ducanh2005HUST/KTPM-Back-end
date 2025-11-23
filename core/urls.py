@@ -18,4 +18,5 @@ urlpatterns = [
     path("sohokhau/", views.sohokhau, name="sohokhau"),
     path("nhankhau/", views.nhankhau, name="nhankhau"),
     path("themnk/", views.themnk, name="themnk"),
+    path("login/", views.login_view, name="login"),
 ]
