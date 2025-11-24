@@ -3,76 +3,73 @@
 {% load perms_extras %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/quanly_truycap.css' %}">
-
 <div class="content-area">
-    <h2 class="page-title">Quản lý tài khoản</h2>
-    <!-- <p>Trang này dùng để tạo tài khoản và phân quyền cho các chức năng trong menu.</p> -->
+    <h2>Quản lý truy cập</h2>
+    <p>Trang này dùng để tạo tài khoản và phân quyền cho các chức năng trong menu.</p>
 
-    <div class="dashboard-panels">
-        <div class="panel">
-            <div class="panel-header"><h3>Tạo tài khoản & phân quyền</h3></div>
-            <div class="panel-body">
-                <form method="post" action="">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="create_user">
-
-                    <div class="form-group">
-                        <label>Tên đăng nhập</label>
-                        <input name="username" required class="form-input">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Mật khẩu</label>
-                        <input name="password" type="password" required class="form-input">
-                    </div>
-
-                    <h4>Chọn vai trò</h4>
-                    <div class="permission-list">
-                        <label class="perm-item">
-                            <input type="checkbox" name="perm_manage_household">
-                            <strong>Tổ phó</strong>
-                        </label>
-
-                        <label class="perm-item">
-                            <input type="checkbox" name="perm_manage_fees">
-                            <strong>Cán bộ</strong>
-                        </label>
-
-                    </div>
-
-                    <div>
-                        <button class="btn primary" type="submit">Tạo tài khoản</button>
-                    </div>
-                </form>
-            </div>
+    <div style="display:flex; gap:24px; align-items:flex-start;">
+        <div style="flex:1; background:#fff; padding:16px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+            <h3>Tạo tài khoản mới</h3>
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_user">
+                <div style="margin-bottom:8px;"><label>Tên đăng nhập</label><br><input name="username" required class="form-input"></div>
+                <div style="margin-bottom:8px;"><label>Mật khẩu</label><br><input name="password" type="password" required class="form-input"></div>
+                <div style="margin-bottom:8px;"><label><input type="checkbox" name="is_staff"> Cho phép đăng nhập vào trang quản trị (staff)</label></div>
+                <div><button class="btn primary" type="submit">Tạo tài khoản</button></div>
+            </form>
         </div>
 
-        <div class="panel">
-            <div class="panel-header"><h3>Danh sách người dùng</h3></div>
-            <div class="panel-body">
-                <table class="table-basic">
-                    <thead>
-                        <tr><th>Tài khoản</th><th>Quyền</th></tr>
-                    </thead>
-                    <tbody>
+        <div style="flex:2; background:#fff; padding:16px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+            <h3>Phân quyền cho người dùng</h3>
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_perms">
+                <div style="margin-bottom:12px;">
+                    <label>Chọn người dùng:</label>
+                    <select name="user_id">
                         {% for u in users %}
+                        <option value="{{ u.id }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <table class="table-basic" style="width:100%; margin-bottom:12px;">
+                    <thead><tr><th>Chức năng</th><th>Mô tả</th><th>Cho phép</th></tr></thead>
+                    <tbody>
+                        {% for p in permissions %}
                         <tr>
-                            <td>{{ u.username }}</td>
-                            <td>
-                                {% for p in permissions %}
-                                    {% if assignments|dict_get:u.id|dict_get:p.key %}
-                                        <span class="perm-badge">{{ p.name }}</span>
-                                    {% endif %}
-                                {% endfor %}
-                            </td>
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.description }}</td>
+                            <td><input type="checkbox" name="perm_{{ p.key }}"></td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+                <div><button class="btn primary" type="submit">Lưu phân quyền</button></div>
+            </form>
         </div>
-
     </div>
+
+    <hr>
+    <h3>Danh sách người dùng</h3>
+    <table class="table-basic">
+        <thead><tr><th>Tài khoản</th><th>Quyền</th></tr></thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.username }}</td>
+                <td>
+                    {% for p in permissions %}
+                        {% if assignments|dict_get:u.id|dict_get:p.key %}
+                            <span style="background:#eef; padding:4px 8px; border-radius:6px; margin-right:6px;">{{ p.key }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+<link rel="stylesheet" href="{% static 'css/quanly_truycap.css' %}">
 {% endblock %}

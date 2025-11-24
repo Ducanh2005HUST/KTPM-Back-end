@@ -1,0 +1,108 @@
+/* --- Thống kê & Báo cáo (thongke_baocao) --- */
+.report-controls { margin-top:10px; margin-bottom:16px; }
+.filter-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.filter-row label { display:flex; gap:8px; align-items:center; font-size:14px; color:#374151; }
+.filter-row input[type="month"] { padding:6px 8px; border-radius:6px; border:1px solid #e6e9ef; background:#fff; }
+.filter-row select { padding:6px 8px; border-radius:6px; border:1px solid #e6e9ef; background:#fff; }
+
+.actions { margin-left: auto; display:flex; gap:8px; }
+.actions .btn { padding:8px 10px; border-radius:8px; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
+.actions .btn:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.04); }
+
+.reports-grid {
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:16px;
+}
+
+/* Đảm bảo cả 2 canvas có cùng kích thước hiển thị */
+.card canvas {
+    width: 100% !important;
+    height: 260px !important; /* chỉnh theo mong muốn */
+    max-height: 260px;
+    display: block;
+}
+
+/* Nếu trước đó .card.wide kéo dài full width, bỏ tính năng đó để 2 biểu đồ bằng nhau */
+.card.wide {
+    grid-column: auto; /* ghi đè nếu còn */
+}
+
+/* responsive: trên màn nhỏ stack và giảm chiều cao */
+@media (max-width: 900px) {
+    .reports-grid { grid-template-columns: 1fr; }
+    .card canvas { height: 220px !important; max-height: 220px; }
+}
+
+/* Task List */
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-list li {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.task-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F3F4F6;
+    border-radius: 8px;
+    margin-right: 12px;
+}
+
+.task-text {
+    flex: 1;
+    font-size: 14px;
+}
+
+.task-action {
+    padding: 4px 8px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.activity-item {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.activity-time {
+    font-size: 13px;
+    color: #6B7280;
+    width: 60px;
+}
+
+.activity-content {
+    flex: 1;
+    font-size: 14px;
+}
+
+.activity-content strong {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.activity-content span {
+    color: #6B7280;
+}
