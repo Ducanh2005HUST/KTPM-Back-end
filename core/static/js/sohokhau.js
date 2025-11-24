@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', function() {
     window.showAddHouseholdForm = function() {
         document.getElementById('modalTitle').textContent = 'Tạo hộ khẩu mới';
         document.getElementById('householdForm').reset();
+        // Set default values
+        document.getElementById('creationDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('districtName').value = 'Hà Đông';
+        document.getElementById('provinceName').value = 'Hà Nội';
+        document.getElementById('headEthnicity').value = 'Kinh';
         householdModal.style.display = 'flex';
     }
 
@@ -150,7 +155,15 @@ document.addEventListener('DOMContentLoaded', function() {
         personModal.style.display = 'flex';
     }
 
-    window.closeModal = function() {
+    window.showSplitHouseholdForm = function() {
+        const splitModal = document.getElementById('splitHouseholdModal');
+        document.getElementById('splitHouseholdForm').reset();
+        document.getElementById('splitDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('newDistrictName').value = 'Hà Đông';
+        splitModal.style.display = 'flex';
+    }
+
+    window.closeHouseholdModal = function() {
         householdModal.style.display = 'none';
     }
 
@@ -158,40 +171,87 @@ document.addEventListener('DOMContentLoaded', function() {
         personModal.style.display = 'none';
     }
 
-    window.saveHousehold = function() {
-        const code = document.getElementById('householdCode').value;
-        const headName = document.getElementById('headName').value;
-        const address = document.getElementById('householdAddress').value;
+    window.closeSplitModal = function() {
+        document.getElementById('splitHouseholdModal').style.display = 'none';
+    }
 
-        if (!code || !headName || !address) {
-            alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+    // Legacy function for backward compatibility
+    window.closeModal = function() {
+        closeHouseholdModal();
+    }
+
+    window.saveHousehold = function() {
+        // Get form data
+        let code = document.getElementById('householdCode').value.trim();
+        const creationDate = document.getElementById('creationDate').value;
+        const creationReason = document.getElementById('creationReason').value;
+        const houseNumber = document.getElementById('houseNumber').value.trim();
+        const streetName = document.getElementById('streetName').value.trim();
+        const wardName = document.getElementById('wardName').value;
+        const headFullName = document.getElementById('headFullName').value.trim();
+        const headDob = document.getElementById('headDob').value;
+        const headGender = document.getElementById('headGender').value;
+        const headIdNumber = document.getElementById('headIdNumber').value.trim();
+
+        // Validation
+        if (!creationDate || !creationReason || !houseNumber || !streetName || 
+            !wardName || !headFullName || !headDob || !headGender || !headIdNumber) {
+            alert('Vui lòng điền đầy đủ thông tin bắt buộc (*)!');
             return;
         }
 
-        // Check if code already exists
-        if (households.find(h => h.code === code)) {
+        // Auto-generate code if empty
+        if (!code) {
+            const nextNumber = households.length + 1;
+            code = `HK-${nextNumber.toString().padStart(3, '0')}`;
+            document.getElementById('householdCode').value = code;
+        }
+
+        // Check if code already exists (for new households)
+        if (document.getElementById('modalTitle').textContent === 'Tạo hộ khẩu mới' &&
+            households.find(h => h.code === code)) {
             alert('Mã hộ khẩu đã tồn tại!');
             return;
         }
 
-        // Add new household
-        const newHousehold = {
+        // Build full address
+        const fullAddress = `${houseNumber}, ${streetName}, ${wardName}`;
+
+        // Create or update household
+        const householdData = {
             id: code,
             code: code,
-            head_name: headName,
-            address: address,
+            head_name: headFullName,
+            address: fullAddress,
             member_count: 1, // Chủ hộ
-            created_at: new Date().toISOString().split('T')[0]
+            created_at: creationDate,
+            creation_reason: creationReason,
+            head_dob: headDob,
+            head_gender: headGender,
+            head_id_number: headIdNumber,
+            head_occupation: document.getElementById('headOccupation').value,
+            head_ethnicity: document.getElementById('headEthnicity').value,
+            head_religion: document.getElementById('headReligion').value,
+            head_education: document.getElementById('headEducation').value,
+            notes: document.getElementById('householdNotes').value
         };
 
-        households.push(newHousehold);
+        if (document.getElementById('modalTitle').textContent === 'Tạo hộ khẩu mới') {
+            households.push(householdData);
+            showSuccessMessage('Tạo hộ khẩu thành công!');
+        } else {
+            // Update existing household
+            const index = households.findIndex(h => h.code === code);
+            if (index !== -1) {
+                households[index] = { ...households[index], ...householdData };
+                showSuccessMessage('Cập nhật hộ khẩu thành công!');
+            }
+        }
+
         filteredHouseholds = [...households];
         updateHouseholdList();
         updateHouseholdCount();
-        closeModal();
-
-        // Show success message
-        showSuccessMessage('Tạo hộ khẩu thành công!');
+        closeHouseholdModal();
     }
 
     window.savePerson = function() {
@@ -227,15 +287,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.editHousehold = function(code) {
-        const household = households.find(h => h.code === code);
-        if (household) {
-            document.getElementById('modalTitle').textContent = 'Chỉnh sửa hộ khẩu';
-            document.getElementById('householdCode').value = household.code;
-            document.getElementById('householdCode').readOnly = true;
-            document.getElementById('headName').value = household.head_name;
-            document.getElementById('householdAddress').value = household.address;
-            householdModal.style.display = 'flex';
-        }
+        // Navigate to the household edit page
+        window.location.href = `/taohokhau/${code}/`;
     }
 
     window.exportHouseholds = function() {

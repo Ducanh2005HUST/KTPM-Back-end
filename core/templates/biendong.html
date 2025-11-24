@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">
+        <i class="fas fa-exchange-alt"></i> Cập nhật Biến động Nhân khẩu
+    </h2>
+    <div class="header-actions">
+        <a href="{% url 'home' %}" class="btn">
+            <i class="fas fa-home"></i> Trang chủ
+        </a>
+        <a href="{% url 'nhankhau' %}" class="btn">
+            <i class="fas fa-list"></i> Nhân khẩu
+        </a>
+    </div>
+</div>
+
+<!-- Dashboard Panels -->
+<div class="dashboard-panels">
+    <div class="panel">
+        <div class="panel-body">
+            <form id="biendongForm" class="biendong-form" method="post">
+            {% csrf_token %}
+            
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Thông tin Nhân khẩu</h3>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nhankhau_id" class="form-label required">Chọn nhân khẩu</label>
+                        <div class="select-wrapper">
+                            <select id="nhankhau_id" name="nhankhau_id" class="form-select" required>
+                                <option value="">-- Chọn nhân khẩu --</option>
+                                <option value="1">Nguyễn Văn An (CCCD: 123456789012)</option>
+                                <option value="2">Trần Thị Bình (CCCD: 123456789013)</option>
+                                <option value="3">Lê Văn Cường (CCCD: 123456789014)</option>
+                                <option value="4">Phạm Thị Dung (CCCD: 123456789015)</option>
+                            </select>
+                            <i class="fas fa-chevron-down select-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_info" class="form-label">Thông tin hiện tại</label>
+                        <div id="current_info" class="info-display">
+                            <div class="info-card">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Chọn nhân khẩu để hiển thị thông tin</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Type Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-sync-alt"></i>
+                    <h3>Loại Biến động</h3>
+                </div>
+
+                <div class="change-type-grid">
+                    <div class="change-option">
+                        <input type="radio" id="chuyen_di" name="change_type" value="chuyen_di" class="change-radio">
+                        <label for="chuyen_di" class="change-card">
+                            <div class="change-icon move">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <h4>Chuyển đi</h4>
+                            <p>Nhân khẩu chuyển sang địa phương khác</p>
+                        </label>
+                    </div>
+
+                    <div class="change-option">
+                        <input type="radio" id="qua_doi" name="change_type" value="qua_doi" class="change-radio">
+                        <label for="qua_doi" class="change-card">
+                            <div class="change-icon death">
+                                <i class="fas fa-cross"></i>
+                            </div>
+                            <h4>Qua đời</h4>
+                            <p>Cập nhật thông tin khi nhân khẩu qua đời</p>
+                        </label>
+                    </div>
+
+                    <div class="change-option">
+                        <input type="radio" id="doi_chu" name="change_type" value="doi_chu" class="change-radio">
+                        <label for="doi_chu" class="change-card">
+                            <div class="change-icon change">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h4>Đổi chủ hộ</h4>
+                            <p>Thay đổi chủ hộ trong hộ gia đình</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Forms -->
+            <!-- Chuyển đi Form -->
+            <div id="chuyen_di_form" class="dynamic-form" style="display: none;">
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Thông tin Chuyển đi</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="new_address" class="form-label required">Địa chỉ mới</label>
+                            <input type="text" id="new_address" name="new_address" class="form-input" 
+                                   placeholder="Nhập địa chỉ nơi chuyển đến">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="move_date" class="form-label required">Ngày chuyển đi</label>
+                            <input type="date" id="move_date" name="move_date" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="move_reason" class="form-label">Lý do chuyển đi</label>
+                            <select id="move_reason" name="move_reason" class="form-select">
+                                <option value="">-- Chọn lý do --</option>
+                                <option value="cong_tac">Công tác</option>
+                                <option value="hoc_tap">Học tập</option>
+                                <option value="ket_hon">Kết hôn</option>
+                                <option value="kinh_doanh">Kinh doanh</option>
+                                <option value="khac">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group span-full">
+                            <label for="move_note" class="form-label">Ghi chú</label>
+                            <textarea id="move_note" name="move_note" class="form-textarea" rows="3" 
+                                      placeholder="Ghi chú thêm về việc chuyển đi..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qua đời Form -->
+            <div id="qua_doi_form" class="dynamic-form" style="display: none;">
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Thông tin Qua đời</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="death_date" class="form-label required">Ngày qua đời</label>
+                            <input type="date" id="death_date" name="death_date" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="death_place" class="form-label">Nơi qua đời</label>
+                            <input type="text" id="death_place" name="death_place" class="form-input" 
+                                   placeholder="Địa điểm qua đời">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="death_cause" class="form-label">Nguyên nhân</label>
+                            <select id="death_cause" name="death_cause" class="form-select">
+                                <option value="">-- Chọn nguyên nhân --</option>
+                                <option value="benh_tat">Bệnh tật</option>
+                                <option value="tai_nan">Tai nạn</option>
+                                <option value="tu_nhien">Tự nhiên</option>
+                                <option value="khac">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="death_certificate" class="form-label">Số giấy chứng tử</label>
+                            <input type="text" id="death_certificate" name="death_certificate" class="form-input" 
+                                   placeholder="Nhập số giấy chứng tử">
+                        </div>
+
+                        <div class="form-group span-full">
+                            <label for="death_note" class="form-label">Ghi chú</label>
+                            <textarea id="death_note" name="death_note" class="form-textarea" rows="3" 
+                                      placeholder="Ghi chú thêm..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Đổi chủ hộ Form -->
+            <div id="doi_chu_form" class="dynamic-form" style="display: none;">
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-user-crown"></i>
+                        <h3>Thông tin Đổi chủ hộ</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="new_head" class="form-label required">Chủ hộ mới</label>
+                            <select id="new_head" name="new_head" class="form-select">
+                                <option value="">-- Chọn chủ hộ mới --</option>
+                                <option value="2">Trần Thị Bình</option>
+                                <option value="3">Lê Văn Cường</option>
+                                <option value="4">Phạm Thị Dung</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="change_date" class="form-label required">Ngày thay đổi</label>
+                            <input type="date" id="change_date" name="change_date" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="change_reason" class="form-label">Lý do thay đổi</label>
+                            <select id="change_reason" name="change_reason" class="form-select">
+                                <option value="">-- Chọn lý do --</option>
+                                <option value="chu_cu_chuyen_di">Chủ cũ chuyển đi</option>
+                                <option value="chu_cu_qua_doi">Chủ cũ qua đời</option>
+                                <option value="thay_doi_tu_nguyen">Thay đổi tự nguyện</option>
+                                <option value="khac">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="approval_doc" class="form-label">Số quyết định</label>
+                            <input type="text" id="approval_doc" name="approval_doc" class="form-input" 
+                                   placeholder="Số quyết định thay đổi chủ hộ">
+                        </div>
+
+                        <div class="form-group span-full">
+                            <label for="change_note" class="form-label">Ghi chú</label>
+                            <textarea id="change_note" name="change_note" class="form-textarea" rows="3" 
+                                      placeholder="Ghi chú thêm về việc đổi chủ hộ..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>Tài liệu đính kèm</h3>
+                </div>
+
+                <div class="upload-area">
+                    <div class="upload-zone" id="uploadZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Kéo thả file hoặc click để chọn</h4>
+                        <p>Hỗ trợ: PDF, JPG, PNG (Max: 5MB)</p>
+                        <input type="file" id="documents" name="documents" multiple 
+                               accept=".pdf,.jpg,.jpeg,.png" class="file-input">
+                    </div>
+                    <div id="fileList" class="file-list"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </button>
+                <button type="button" class="btn btn-info" id="previewBtn">
+                    <i class="fas fa-eye"></i> Xem trước
+                </button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+    <div id="previewModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-eye"></i> Xem trước thông tin</h3>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content will be generated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closePreview">Đóng</button>
+                <button type="button" class="btn btn-primary" id="confirmSubmit">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+<script src="{% static 'js/biendong.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/biendong.css' %}">
+{% endblock %}

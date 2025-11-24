@@ -12,25 +12,6 @@
     <!-- Thu phí vệ sinh -->
     <section id="tab-fee" class="fee-panel active">
         <div class="fee-form">
-            <div class="row">
-                <label>Chọn hộ gia đình</label>
-                <!-- select sẽ được populate từ JS -->
-                <select id="feeHousehold" aria-label="Chọn hộ gia đình"></select>
-            </div>
-
-            <div class="row">
-                <label>Số nhân khẩu</label>
-                <!-- readonly: lấy từ dữ liệu hộ, không nhập tay -->
-                <input type="number" id="feeMembers" value="1" min="1" readonly>
-                <label>Tháng thu</label>
-                <input type="month" id="feeMonth">
-            </div>
-
-            <div class="row">
-                <label>Số tiền (6.000đ/người/tháng)</label>
-                <input type="text" id="feeAmount" readonly>
-            </div>
-
             <div class="form-actions">
                 <button type="button" id="addFee" class="btn primary">Lập phiếu thu</button>
                 <button type="button" id="printFee" class="btn">In phiếu thu</button>
@@ -58,7 +39,7 @@
                             <td>4</td>
                             <td>10/2025</td>
                             <td>24.000đ</td>
-                            <td><span class="status paid">Đã thu</span></td>
+                            <td><span class="status paid clickable" onclick="toggleStatus(this)">Đã thu</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -70,13 +51,8 @@
     <section id="tab-donation" class="fee-panel">
         <div class="fee-form">
             <div class="row">
-                <label>Chọn đợt đóng góp</label>
-                <select id="donationType">
-                    <option>Ủng hộ ngày thương binh-liệt sỹ 27/07</option>
-                    <option>Ủng hộ ngày tết thiếu nhi</option>
-                    <option>Ủng hộ vì người nghèo</option>
-                    <option>Trợ giúp đồng bào bị ảnh hưởng bão lụt</option>
-                </select>
+                <label>Tên đợt đóng góp</label>
+                <input type="text" id="donationType" placeholder="Nhập tên đợt đóng góp">
             </div>
             <div class="row">
                 <label>Hộ gia đình</label>
@@ -120,5 +96,5 @@
 
 <!-- thay thẻ script inline bằng file JS tách riêng -->
 <script src="{% static 'js/thuphi.js' %}" defer></script>
-
+<link rel="stylesheet" href="{% static 'css/thuphi.css' %}">
 {% endblock %}

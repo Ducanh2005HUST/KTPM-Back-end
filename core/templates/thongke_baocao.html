@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<h2>Thống kê & Báo cáo</h2>
+<h2>Thống Kê & Báo Cáo</h2>
 
 <div class="report-controls">
     <div class="filter-row">
@@ -54,5 +54,5 @@
 <!-- keep Chart.js CDN, then load extracted script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/thongke_baocao.js' %}" defer></script>
-
+<link rel="stylesheet" href="{% static 'css/thongke_baocao.css' %}">
 {% endblock %}

@@ -16,7 +16,10 @@ urlpatterns = [
     path("thongke_baocao/", views.thongke_baocao, name="thongke_baocao"),
     path("quanlytruycap/", views.quanly_truycap, name="quanly_truycap"),
     path("sohokhau/", views.sohokhau, name="sohokhau"),
+    path("taohokhau/", views.taohokhau, name="taohokhau"),
+    path("taohokhau/<str:household_id>/", views.taohokhau, name="taohokhau_edit"),
     path("nhankhau/", views.nhankhau, name="nhankhau"),
     path("themnk/", views.themnk, name="themnk"),
+    path("biendong/", views.biendong, name="biendong"),
     path("login/", views.login_view, name="login"),
 ]
