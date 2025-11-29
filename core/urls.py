@@ -8,7 +8,10 @@ router.register(r'persons', views.PersonViewSet)
 router.register(r'payments', views.PaymentViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # API routes
+    path("", include(router.urls)),
+
+    # HTML pages (removed leading slash)
     path("home/", views.home, name="home"),
     path("qlnk/", views.qlnk, name="qlnk"),
     path("qltv_tt/", views.qltv_tt, name="qltv_tt"),
