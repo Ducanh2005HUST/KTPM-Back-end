@@ -14,11 +14,13 @@ Quick start (local, without Docker):
 2. Install dependencies:
    pip install -r requirements.txt
 3. Run migrations and create superuser:
+
    python manage.py migrate
+   
    python manage.py createsuperuser
-4. Run server:
+5. Run server:
    python manage.py runserver
-5. Use: http://127.0.0.1:8000/admin to login
+6. Use: http://127.0.0.1:8000/admin to login
 
 Notes:
 - This skeleton uses SQLite by default. To use PostgreSQL/Neon later, set DATABASE_URL and update settings.
