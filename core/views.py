@@ -51,6 +51,34 @@ def thongke_baocao(request):
     return render(request, "thongke_baocao.html")
 
 def quanly_truycap(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")          # <-- Lấy email
+        password = request.POST.get("password")
+        is_staff = "is_staff" in request.POST
+
+        # Kiểm tra username trùng
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Tên đăng nhập đã tồn tại!")
+            return redirect("quanly_truycap")
+
+        # Kiểm tra email trùng
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email đã được sử dụng!")
+            return redirect("quanly_truycap")
+
+        # Tạo user
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+        user.is_staff = is_staff
+        user.save()
+
+        messages.success(request, "Tạo tài khoản FULL QUYỀN thành công!")
+        return redirect("quanly_truycap")
+
     return render(request, "quanly_truycap.html")
 
 def sohokhau(request):
@@ -62,27 +90,33 @@ def nhankhau(request):
 def themnk(request):
     return render(request, "themnk.html")
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.contrib import messages
+
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')
-        
-        # Simple authentication (you can integrate with Django auth later)
-        if username == 'admin' and password == 'admin123':
-            # Set session or redirect to dashboard
-            request.session['user_logged_in'] = True
-            request.session['username'] = username
-            
-            if not remember_me:
-                request.session.set_expiry(0)  # Session expires when browser closes
-            
+
+        # Tìm user bằng email
+        try:
+            user_obj = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "Email không tồn tại!")
+            return render(request, 'login.html')
+
+        # Authenticate bằng USERNAME (do Django không login bằng email)
+        user = authenticate(request, username=user_obj.username, password=password)
+
+        if user is not None:
+            login(request, user)
             return redirect('home')
         else:
-            from django.contrib import messages
-            messages.error(request, 'Tên đăng nhập hoặc mật khẩu không chính xác!')
-    
+            messages.error(request, "Mật khẩu không chính xác!")
+
     return render(request, 'login.html')
+
 
 def taohokhau(request, household_id=None):
     """View cho trang tạo/cập nhật hộ khẩu"""
