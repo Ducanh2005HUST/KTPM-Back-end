@@ -16,7 +16,14 @@ document.addEventListener('DOMContentLoaded', function(){
                     break;
                     
                 case 'nhankhau':
-                    // Export both temporary absent and residence
+                    // Export population overview first
+                    const populationOverviewTable = document.getElementById('populationOverviewTable');
+                    if (populationOverviewTable && populationOverviewTable.closest('.report-section').style.display !== 'none') {
+                        const populationOverviewWs = XLSX.utils.table_to_sheet(populationOverviewTable);
+                        XLSX.utils.book_append_sheet(wb, populationOverviewWs, 'Thống kê tổng quan');
+                    }
+                    
+                    // Export temporary absent and residence
                     const temporaryAbsentTable = document.getElementById('temporaryAbsentTable');
                     if (temporaryAbsentTable && temporaryAbsentTable.closest('.report-section').style.display !== 'none') {
                         const temporaryAbsentWs = XLSX.utils.table_to_sheet(temporaryAbsentTable);
@@ -301,6 +308,7 @@ function updateDonationDetail(campaignId) {
 function showReportSections(reportType) {
     // Get all report sections
     const sections = {
+        'populationOverview': document.querySelector('#populationOverviewTable').closest('.report-section'),
         'temporaryAbsent': document.querySelector('#temporaryAbsentTable').closest('.report-section'),
         'temporaryResidence': document.querySelector('#temporaryResidenceTable').closest('.report-section'),
         'fee': document.querySelector('#feeTable').closest('.report-section'),
@@ -324,7 +332,8 @@ function showReportSections(reportType) {
             break;
             
         case 'nhankhau':
-            // Show only population related sections
+            // Show population related sections
+            if (sections.populationOverview) sections.populationOverview.style.display = 'block';
             if (sections.temporaryAbsent) sections.temporaryAbsent.style.display = 'block';
             if (sections.temporaryResidence) sections.temporaryResidence.style.display = 'block';
             break;
@@ -455,6 +464,7 @@ function showNotification(message, type = 'info') {
 function exportAllVisibleSections(wb) {
     // Export all visible sections
     const sections = {
+        'populationOverviewTable': 'Thống kê tổng quan nhân khẩu',
         'temporaryAbsentTable': 'Danh sách tạm vắng',
         'temporaryResidenceTable': 'Danh sách tạm trú',
         'feeTable': 'Thu phí theo tháng',
