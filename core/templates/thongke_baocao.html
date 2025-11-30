@@ -15,44 +15,416 @@
             <select id="reportType">
                 <option value="all">Tổng quan</option>
                 <option value="nhankhau">Nhân khẩu</option>
+                <option value="tamvang">Tạm vắng</option>
+                <option value="tamtru">Tạm trú</option>
                 <option value="thuphi">Thu phí</option>
+                <option value="donggop">Đóng góp</option>
+            </select>
+        </label>
+
+        <label>Chi tiết đợt đóng góp
+            <select id="donationCampaign">
+                <option value="thuongbinh">Ủng hộ ngày thương binh-liệt sỹ 27/07</option>
+                <option value="treem">Quỹ từ thiện trẻ em</option>
+                <option value="khuivui">Xây dựng khu vui chơi trẻ em</option>
+                <option value="nguoingheo">Ủng hộ người nghèo cuối năm</option>
             </select>
         </label>
 
         <div class="actions">
             <button id="applyBtn" class="btn">Áp dụng</button>
-            <button id="exportCsv" class="btn">Xuất CSV</button>
-            <button id="exportPng" class="btn">Tải biểu đồ (PNG)</button>
+            <button id="exportExcel" class="btn primary">Xuất Excel</button>
+            <button id="printReport" class="btn">In báo cáo</button>
         </div>
     </div>
 </div>
 
-<div class="reports-grid">
-     <div class="card">
-         <h3>Nhân khẩu theo nhóm tuổi</h3>
-         <canvas id="ageChart"></canvas>
-     </div>
- 
-     <div class="card wide">
-         <h3>Thu phí theo tháng</h3>
-         <canvas id="feeChart"></canvas>
-     </div>
- 
-     <div class="card">
-         <h3>Top hộ đóng góp (mẫu)</h3>
-         <table class="table-basic" id="topContributors">
-             <thead>
-                 <tr><th>Hộ khẩu</th><th>Chủ hộ</th><th>Tổng đóng góp</th></tr>
-             </thead>
-             <tbody>
-                 <!-- will be populated by JS -->
-             </tbody>
-         </table>
-     </div>
- </div>
+<div class="reports-container">
+    <!-- Bảng thống kê tạm vắng -->
+    <div class="report-section">
+        <h3>✈️ Thống kê nhân khẩu tạm vắng</h3>
+        <div class="excel-table">
+            <table id="temporaryAbsentTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Số hộ khẩu</th>
+                        <th>Họ tên</th>
+                        <th>Nơi tạm vắng</th>
+                        <th>Từ ngày</th>
+                        <th>Đến ngày</th>
+                        <th>Lý do</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>HK-015</td>
+                        <td>Nguyễn Văn Hùng</td>
+                        <td>TP. Hồ Chí Minh</td>
+                        <td>15/09/2025</td>
+                        <td>15/12/2025</td>
+                        <td>Công tác</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>HK-028</td>
+                        <td>Trần Thị Mai</td>
+                        <td>Đà Nẵng</td>
+                        <td>01/10/2025</td>
+                        <td>01/02/2026</td>
+                        <td>Học tập</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>HK-042</td>
+                        <td>Lê Minh Tuấn</td>
+                        <td>Hải Phòng</td>
+                        <td>20/11/2025</td>
+                        <td>20/01/2026</td>
+                        <td>Thăm người thân</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>HK-067</td>
+                        <td>Phạm Văn Đức</td>
+                        <td>Cần Thơ</td>
+                        <td>05/11/2025</td>
+                        <td>05/03/2026</td>
+                        <td>Làm việc</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="6"><strong>TỔNG SỐ NGƯỜI TẠM VẮNG</strong></td>
+                        <td><strong>4 người</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<!-- keep Chart.js CDN, then load extracted script -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bảng thống kê tạm trú -->
+    <div class="report-section">
+        <h3>🏠 Thống kê nhân khẩu tạm trú</h3>
+        <div class="excel-table">
+            <table id="temporaryResidenceTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Số hộ khẩu</th>
+                        <th>Họ tên</th>
+                        <th>Nơi đến từ</th>
+                        <th>Từ ngày</th>
+                        <th>Đến ngày</th>
+                        <th>Lý do</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>HK-089</td>
+                        <td>Nguyễn Thị Hoa</td>
+                        <td>Hà Nội</td>
+                        <td>01/08/2025</td>
+                        <td>01/02/2026</td>
+                        <td>Công tác dài hạn</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>HK-125</td>
+                        <td>Trần Văn Bình</td>
+                        <td>TP. Hồ Chí Minh</td>
+                        <td>15/09/2025</td>
+                        <td>15/03/2026</td>
+                        <td>Chuyển công tác</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>HK-134</td>
+                        <td>Lê Thị Mai</td>
+                        <td>Đà Nẵng</td>
+                        <td>10/10/2025</td>
+                        <td>10/01/2026</td>
+                        <td>Thuê nhà tạm</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>HK-142</td>
+                        <td>Phạm Minh Tuấn</td>
+                        <td>Hải Phòng</td>
+                        <td>20/11/2025</td>
+                        <td>20/05/2026</td>
+                        <td>Học tập</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>HK-151</td>
+                        <td>Hoàng Thị Lan</td>
+                        <td>Cần Thơ</td>
+                        <td>05/11/2025</td>
+                        <td>Chưa xác định</td>
+                        <td>Chăm sóc người thân</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="6"><strong>TỔNG SỐ NGƯỜI TẠM TRÚ</strong></td>
+                        <td><strong>5 người</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bảng thu phí theo tháng -->
+    <div class="report-section">
+        <h3>💰 Thu phí vệ sinh theo tháng</h3>
+        <div class="excel-table">
+            <table id="feeTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tháng/Năm</th>
+                        <th>Số hộ đã thu</th>
+                        <th>Tổng số hộ</th>
+                        <th>Tỷ lệ thu (%)</th>
+                        <th>Số tiền thu được</th>
+                        <th>Số tiền cần thu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>10/2025</td>
+                        <td>85</td>
+                        <td>120</td>
+                        <td>70.8%</td>
+                        <td>2.040.000đ</td>
+                        <td>2.880.000đ</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>09/2025</td>
+                        <td>110</td>
+                        <td>120</td>
+                        <td>91.7%</td>
+                        <td>2.640.000đ</td>
+                        <td>2.880.000đ</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>08/2025</td>
+                        <td>118</td>
+                        <td>120</td>
+                        <td>98.3%</td>
+                        <td>2.832.000đ</td>
+                        <td>2.880.000đ</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>07/2025</td>
+                        <td>120</td>
+                        <td>120</td>
+                        <td>100%</td>
+                        <td>2.880.000đ</td>
+                        <td>2.880.000đ</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="2"><strong>TỔNG 4 THÁNG</strong></td>
+                        <td><strong>433</strong></td>
+                        <td><strong>480</strong></td>
+                        <td><strong>90.2%</strong></td>
+                        <td><strong>10.392.000đ</strong></td>
+                        <td><strong>11.520.000đ</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bảng tổng hợp tất cả đợt đóng góp -->
+    <div class="report-section">
+        <h3>🤝 Tổng hợp tất cả đợt đóng góp</h3>
+        <div class="excel-table">
+            <table id="donationSummaryTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên đợt đóng góp</th>
+                        <th>Thời gian</th>
+                        <th>Tổng hộ khu vực</th>
+                        <th>Hộ đã tham gia</th>
+                        <th>Hộ chưa tham gia</th>
+                        <th>Tỷ lệ tham gia (%)</th>
+                        <th>Tổng tiền thu được</th>
+                        <th>Mục tiêu</th>
+                        <th>Tỷ lệ đạt (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Ủng hộ ngày thương binh-liệt sỹ 27/07</td>
+                        <td>07/2025</td>
+                        <td>120</td>
+                        <td>115</td>
+                        <td>5</td>
+                        <td>95.8%</td>
+                        <td>12.500.000đ</td>
+                        <td>10.000.000đ</td>
+                        <td>125%</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Quỹ từ thiện trẻ em</td>
+                        <td>09/2025</td>
+                        <td>120</td>
+                        <td>98</td>
+                        <td>22</td>
+                        <td>81.7%</td>
+                        <td>8.750.000đ</td>
+                        <td>15.000.000đ</td>
+                        <td>58.3%</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Xây dựng khu vui chơi trẻ em</td>
+                        <td>10/2025</td>
+                        <td>120</td>
+                        <td>87</td>
+                        <td>33</td>
+                        <td>72.5%</td>
+                        <td>22.300.000đ</td>
+                        <td>30.000.000đ</td>
+                        <td>74.3%</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Ủng hộ người nghèo cuối năm</td>
+                        <td>11/2025</td>
+                        <td>120</td>
+                        <td>105</td>
+                        <td>15</td>
+                        <td>87.5%</td>
+                        <td>15.750.000đ</td>
+                        <td>20.000.000đ</td>
+                        <td>78.8%</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3"><strong>TỔNG CỘNG 4 ĐỢT</strong></td>
+                        <td><strong>480</strong></td>
+                        <td><strong>405</strong></td>
+                        <td><strong>75</strong></td>
+                        <td><strong>84.4%</strong></td>
+                        <td><strong>59.300.000đ</strong></td>
+                        <td><strong>75.000.000đ</strong></td>
+                        <td><strong>79.1%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bảng chi tiết đóng góp của từng hộ theo đợt -->
+    <div class="report-section">
+        <h3>📋 Chi tiết đóng góp từng hộ - Đợt: Ủng hộ ngày thương binh-liệt sỹ 27/07</h3>
+        <div class="excel-table">
+            <table id="donationDetailTable">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Số hộ khẩu</th>
+                        <th>Chủ hộ</th>
+                        <th>Số thành viên</th>
+                        <th>Ngày đóng góp</th>
+                        <th>Số tiền đóng góp</th>
+                        <th>Người thu</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>HK-001</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>4</td>
+                        <td>15/07/2025</td>
+                        <td>200.000đ</td>
+                        <td>Trần Thị C</td>
+                        <td>Đóng góp đầy đủ</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>HK-002</td>
+                        <td>Trần Thị B</td>
+                        <td>3</td>
+                        <td>16/07/2025</td>
+                        <td>150.000đ</td>
+                        <td>Trần Thị C</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>HK-003</td>
+                        <td>Lê Văn C</td>
+                        <td>5</td>
+                        <td>17/07/2025</td>
+                        <td>100.000đ</td>
+                        <td>Nguyễn Văn D</td>
+                        <td>Gia đình khó khăn</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>HK-004</td>
+                        <td>Phạm Thị D</td>
+                        <td>2</td>
+                        <td>18/07/2025</td>
+                        <td>300.000đ</td>
+                        <td>Trần Thị C</td>
+                        <td>Đóng góp tích cực</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>HK-005</td>
+                        <td>Hoàng Văn E</td>
+                        <td>6</td>
+                        <td>20/07/2025</td>
+                        <td>250.000đ</td>
+                        <td>Nguyễn Văn D</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>HK-006</td>
+                        <td>Vũ Thị F</td>
+                        <td>4</td>
+                        <td>-</td>
+                        <td class="unpaid">Chưa đóng</td>
+                        <td>-</td>
+                        <td class="unpaid">Cần liên hệ lại</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>HK-007</td>
+                        <td>Đặng Văn G</td>
+                        <td>3</td>
+                        <td>22/07/2025</td>
+                        <td>180.000đ</td>
+                        <td>Trần Thị C</td>
+                        <td>-</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="5"><strong>TỔNG ĐỢT NÀY</strong></td>
+                        <td><strong>1.180.000đ</strong></td>
+                        <td><strong>6/7 hộ</strong></td>
+                        <td><strong>Tỷ lệ: 85.7%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- SheetJS for Excel export -->
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 <script src="{% static 'js/thongke_baocao.js' %}" defer></script>
 <link rel="stylesheet" href="{% static 'css/thongke_baocao.css' %}">
 {% endblock %}
