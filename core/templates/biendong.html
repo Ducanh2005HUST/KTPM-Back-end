@@ -86,17 +86,6 @@
                             <p>Cập nhật thông tin khi nhân khẩu qua đời</p>
                         </label>
                     </div>
-
-                    <div class="change-option">
-                        <input type="radio" id="doi_chu" name="change_type" value="doi_chu" class="change-radio">
-                        <label for="doi_chu" class="change-card">
-                            <div class="change-icon change">
-                                <i class="fas fa-crown"></i>
-                            </div>
-                            <h4>Đổi chủ hộ</h4>
-                            <p>Thay đổi chủ hộ trong hộ gia đình</p>
-                        </label>
-                    </div>
                 </div>
             </div>
 
@@ -188,55 +177,7 @@
                 </div>
             </div>
 
-            <!-- Đổi chủ hộ Form -->
-            <div id="doi_chu_form" class="dynamic-form" style="display: none;">
-                <div class="form-section">
-                    <div class="section-header">
-                        <i class="fas fa-user-crown"></i>
-                        <h3>Thông tin Đổi chủ hộ</h3>
-                    </div>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="new_head" class="form-label required">Chủ hộ mới</label>
-                            <select id="new_head" name="new_head" class="form-select">
-                                <option value="">-- Chọn chủ hộ mới --</option>
-                                <option value="2">Trần Thị Bình</option>
-                                <option value="3">Lê Văn Cường</option>
-                                <option value="4">Phạm Thị Dung</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="change_date" class="form-label required">Ngày thay đổi</label>
-                            <input type="date" id="change_date" name="change_date" class="form-input">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="change_reason" class="form-label">Lý do thay đổi</label>
-                            <select id="change_reason" name="change_reason" class="form-select">
-                                <option value="">-- Chọn lý do --</option>
-                                <option value="chu_cu_chuyen_di">Chủ cũ chuyển đi</option>
-                                <option value="chu_cu_qua_doi">Chủ cũ qua đời</option>
-                                <option value="thay_doi_tu_nguyen">Thay đổi tự nguyện</option>
-                                <option value="khac">Khác</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="approval_doc" class="form-label">Số quyết định</label>
-                            <input type="text" id="approval_doc" name="approval_doc" class="form-input" 
-                                   placeholder="Số quyết định thay đổi chủ hộ">
-                        </div>
-
-                        <div class="form-group span-full">
-                            <label for="change_note" class="form-label">Ghi chú</label>
-                            <textarea id="change_note" name="change_note" class="form-textarea" rows="3" 
-                                      placeholder="Ghi chú thêm về việc đổi chủ hộ..."></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Documents Section -->
             <div class="form-section">

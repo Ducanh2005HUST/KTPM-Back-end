@@ -80,6 +80,9 @@
                                 <button class="btn-sm" onclick="editHousehold('HK-001')">
                                     <i class="fas fa-edit"></i> Sửa
                                 </button>
+                                <button class="btn-sm" onclick="changeHouseholdHead('HK-001')">
+                                    <i class="fas fa-crown"></i> Đổi chủ hộ
+                                </button>
                             </td>
                         </tr>
                         <tr>
@@ -94,6 +97,9 @@
                                 <button class="btn-sm" onclick="editHousehold('HK-002')">
                                     <i class="fas fa-edit"></i> Sửa
                                 </button>
+                                <button class="btn-sm" onclick="changeHouseholdHead('HK-002')">
+                                    <i class="fas fa-crown"></i> Đổi chủ hộ
+                                </button>
                             </td>
                         </tr>
                         <tr>
@@ -107,6 +113,9 @@
                                 </button>
                                 <button class="btn-sm" onclick="editHousehold('HK-003')">
                                     <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn-sm" onclick="changeHouseholdHead('HK-003')">
+                                    <i class="fas fa-crown"></i> Đổi chủ hộ
                                 </button>
                             </td>
                         </tr>
@@ -132,6 +141,11 @@
                     <span class="task-icon"><i class="fas fa-user-plus"></i></span>
                     <span class="task-text">Thêm nhân khẩu</span>
                     <a href="{% url 'themnk' %}" class="task-action" onclick="showAddPersonForm()">Thêm</a>
+                </li>
+                <li>
+                    <span class="task-icon"><i class="fas fa-crown"></i></span>
+                    <span class="task-text">Đổi chủ hộ</span>
+                    <a href="#" class="task-action" onclick="showChangeHeadModal()">Thay đổi</a>
                 </li>
                 <li>
                     <span class="task-icon"><i class="fas fa-exchange-alt"></i></span>
@@ -468,6 +482,78 @@
         <div class="modal-footer">
             <button class="btn" onclick="closePersonModal()">Hủy</button>
             <button class="btn primary" onclick="savePerson()">Lưu</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Changing Household Head -->
+<div id="changeHeadModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-crown"></i> Đổi chủ hộ</h3>
+            <span class="close" onclick="closeChangeHeadModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="changeHeadForm">
+                <div class="form-group">
+                    <label>Hộ khẩu cần đổi chủ *</label>
+                    <select id="changeHeadHousehold" class="form-input" required>
+                        <option value="">-- Chọn hộ khẩu --</option>
+                        <option value="HK-001">HK-001 - Nguyễn Văn A</option>
+                        <option value="HK-002">HK-002 - Trần Thị B</option>
+                        <option value="HK-003">HK-003 - Lê Văn C</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Chủ hộ hiện tại</label>
+                    <div id="currentHead" class="info-display">
+                        <div class="info-card">
+                            <i class="fas fa-user"></i>
+                            <span>Chọn hộ khẩu để hiển thị chủ hộ hiện tại</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Chủ hộ mới *</label>
+                    <select id="newHead" class="form-input" required>
+                        <option value="">-- Chọn chủ hộ mới --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ngày thay đổi *</label>
+                    <input type="date" id="changeHeadDate" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Lý do thay đổi</label>
+                    <select id="changeHeadReason" class="form-input">
+                        <option value="">-- Chọn lý do --</option>
+                        <option value="chu_cu_chuyen_di">Chủ cũ chuyển đi</option>
+                        <option value="chu_cu_qua_doi">Chủ cũ qua đời</option>
+                        <option value="thay_doi_tu_nguyen">Thay đổi tự nguyện</option>
+                        <option value="khac">Khác</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Số quyết định</label>
+                    <input type="text" id="changeHeadApproval" class="form-input" 
+                           placeholder="Số quyết định thay đổi chủ hộ">
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú</label>
+                    <textarea id="changeHeadNote" class="form-input" rows="3" 
+                              placeholder="Ghi chú thêm về việc đổi chủ hộ..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeChangeHeadModal()">Hủy</button>
+            <button class="btn primary" onclick="saveChangeHead()">Thay đổi chủ hộ</button>
         </div>
     </div>
 </div>
