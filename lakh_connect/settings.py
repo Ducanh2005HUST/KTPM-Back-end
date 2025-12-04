@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -35,7 +35,7 @@ ROOT_URLCONF = 'lakh_connect.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -50,16 +50,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'lakh_connect.wsgi.application'
 
-DATABASE_URL = os.getenv('DATABASE_URL', None)
-if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=False)}
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+# ----------------------------------------
+#       DATABASE (Neon PostgreSQL)
+# ----------------------------------------
+
+
+DATABASE_URL='postgresql://neondb_owner:npg_UdOcSWIy1T8K@ep-muddy-morning-a1qmy2ny-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL is not set! Check your .env location.")
+
+
+DATABASES = {
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True  # Neon bắt buộc SSL
+    )
+}
+
+# ----------------------------------------
 
 AUTH_PASSWORD_VALIDATORS = []
 

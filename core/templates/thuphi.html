@@ -1,10 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/thuphi.css' %}">
-{% endblock %}
-
 {% block content %}
 <h2>Quản Lý Thu Phí & Đóng Góp</h2>
 
@@ -54,32 +49,14 @@
 
     <!-- Đóng góp (giữ nguyên) -->
     <section id="tab-donation" class="fee-panel">
-        <!-- Header với nút tạo đợt đóng góp -->
-        <div class="donation-header">
-            <h3>Quản lý đóng góp</h3>
-            <button type="button" id="showCreateCampaignForm" class="btn primary">
-                Tạo đợt đóng góp
-            </button>
-        </div>
-
         <div class="fee-form">
             <div class="row">
-                <label>Đợt đóng góp</label>
-                <select id="donationType">
-                    <option value="">-- Chọn đợt đóng góp --</option>
-                    <option value="default1">Ủng hộ ngày thương binh-liệt sỹ 27/07</option>
-                </select>
+                <label>Tên đợt đóng góp</label>
+                <input type="text" id="donationType" placeholder="Nhập tên đợt đóng góp">
             </div>
             <div class="row">
                 <label>Hộ gia đình</label>
-                <select id="donationHousehold">
-                    <option value="">-- Chọn hộ gia đình --</option>
-                    <option value="HK-001">HK-001 - Nguyễn Văn A (4 người)</option>
-                    <option value="HK-002">HK-002 - Trần Thị B (3 người)</option>
-                    <option value="HK-003">HK-003 - Lê Văn C (5 người)</option>
-                    <option value="HK-004">HK-004 - Phạm Thị D (2 người)</option>
-                    <option value="HK-005">HK-005 - Hoàng Văn E (6 người)</option>
-                </select>
+                <input type="text" id="donationHousehold" placeholder="Nhập số hộ khẩu / tên chủ hộ">
             </div>
             <div class="row">
                 <label>Số tiền đóng góp</label>
@@ -104,11 +81,11 @@
                         </tr>
                     </thead>
                     <tbody id="donationList">
-                        <tr data-campaign-id="default1">
+                        <tr>
                             <td>Ủng hộ ngày thương binh-liệt sỹ 27/07</td>
                             <td>125 hộ</td>
                             <td>12.500.000đ</td>
-                            <td><button class="btn-sm" onclick="showCampaignDetails('default1')">Chi tiết</button></td>
+                            <td><button class="btn-sm">Chi tiết</button></td>
                         </tr>
                     </tbody>
                 </table>
@@ -117,61 +94,7 @@
     </section>
 </div>
 
-<!-- Modal tạo đợt đóng góp -->
-<div id="createCampaignModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4>Tạo đợt đóng góp mới</h4>
-            <span class="close">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="createCampaignForm">
-                <div class="form-group">
-                    <label for="campaignName">Tên đợt đóng góp *</label>
-                    <input type="text" id="campaignName" name="campaignName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="campaignDescription">Mô tả</label>
-                    <textarea id="campaignDescription" name="campaignDescription" rows="3"></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="startDate">Ngày bắt đầu *</label>
-                        <input type="date" id="startDate" name="startDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate">Ngày kết thúc *</label>
-                        <input type="date" id="endDate" name="endDate" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="targetAmount">Số tiền mục tiêu</label>
-                        <input type="number" id="targetAmount" name="targetAmount" min="0" step="1000">
-                    </div>
-                    <div class="form-group">
-                        <label for="campaignType">Loại đóng góp *</label>
-                        <select id="campaignType" name="campaignType" required>
-                            <option value="">-- Chọn loại --</option>
-                            <option value="voluntary">Tự nguyện</option>
-                            <option value="mandatory">Bắt buộc</option>
-                            <option value="event">Sự kiện</option>
-                            <option value="charity">Từ thiện</option>
-                        </select>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn secondary" onclick="closeCreateCampaignModal()">Hủy</button>
-            <button type="submit" form="createCampaignForm" class="btn primary">Tạo đợt đóng góp</button>
-        </div>
-    </div>
-</div>
-
 <!-- thay thẻ script inline bằng file JS tách riêng -->
 <script src="{% static 'js/thuphi.js' %}" defer></script>
+<link rel="stylesheet" href="{% static 'css/thuphi.css' %}">
 {% endblock %}
