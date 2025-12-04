@@ -219,10 +219,10 @@ body {
 }
 
 /* Màu sắc thẻ */
-.stat-card.blue .icon { background-color: #e3f2fd; color: #1565c0; }
-.stat-card.green .icon { background-color: #e8f5e8; color: #388e3c; }
-.stat-card.yellow .icon { background-color: #fff3e0; color: #f57c00; }
-.stat-card.purple .icon { background-color: #f3e5f5; color: #7b1fa2; }
+.stat-card.blue .icon { background-color: #e6f0ff; color: #007bff; }
+.stat-card.green .icon { background-color: #e6f9ed; color: #28a745; }
+.stat-card.yellow .icon { background-color: #fff8e6; color: #ffc107; }
+.stat-card.purple .icon { background-color: #f0e6ff; color: #6f42c1; }
 
 /* --- Main Sections (Phần dưới) --- */
 .main-sections {

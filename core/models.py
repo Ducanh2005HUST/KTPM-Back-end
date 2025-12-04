@@ -10,17 +10,26 @@ class Household(models.Model):
 
 class Person(models.Model):
     GENDER_CHOICES = [('M','Nam'),('F','Nữ'),('O','Khác')]
+
     household = models.ForeignKey(Household, related_name='members', on_delete=models.CASCADE)
+
     full_name = models.CharField(max_length=200)
     alias = models.CharField(max_length=100, blank=True, null=True)
     dob = models.DateField()
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+
+    # === Bạn yêu cầu thêm 2 field này ===
     relation_to_head = models.CharField(max_length=100, blank=True, null=True)
+    is_head = models.BooleanField(default=False)
+    # ==================================
+
     id_number = models.CharField(max_length=30, blank=True, null=True)
     occupation = models.CharField(max_length=200, blank=True, null=True)
-    is_head = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
-    def __str__(self): return self.full_name
+
+    def __str__(self):
+        return self.full_name
 
 class TemporaryRecord(models.Model):
     REC_TYPE = [('TEMP_OUT','Tạm vắng'),('TEMP_IN','Tạm trú')]

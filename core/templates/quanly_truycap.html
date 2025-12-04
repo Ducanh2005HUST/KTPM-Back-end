@@ -13,9 +13,26 @@
             <form method="post" action="">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="create_user">
-                <div style="margin-bottom:8px;"><label>Tên đăng nhập</label><br><input name="username" required class="form-input"></div>
-                <div style="margin-bottom:8px;"><label>Mật khẩu</label><br><input name="password" type="password" required class="form-input"></div>
-                <div style="margin-bottom:8px;"><label><input type="checkbox" name="is_staff"> Cho phép đăng nhập vào trang quản trị (staff)</label></div>
+
+                <div style="margin-bottom:8px;">
+                    <label>Tên đăng nhập</label><br>
+                    <input name="username" required class="form-input">
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    <label>Email</label><br>
+                    <input name="email" type="email" required class="form-input">
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    <label>Mật khẩu</label><br>
+                    <input name="password" type="password" required class="form-input">
+                </div>
+
+                <div style="margin-bottom:8px;">
+                    <label><input type="checkbox" name="is_staff"> Cho phép đăng nhập vào trang quản trị (staff)</label>
+                </div>
+
                 <div><button class="btn primary" type="submit">Tạo tài khoản</button></div>
             </form>
         </div>
@@ -54,11 +71,12 @@
     <hr>
     <h3>Danh sách người dùng</h3>
     <table class="table-basic">
-        <thead><tr><th>Tài khoản</th><th>Quyền</th></tr></thead>
+        <thead><tr><th>Tài khoản</th><th>Email</th><th>Quyền</th></tr></thead>
         <tbody>
             {% for u in users %}
             <tr>
                 <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
                 <td>
                     {% for p in permissions %}
                         {% if assignments|dict_get:u.id|dict_get:p.key %}
