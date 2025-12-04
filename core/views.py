@@ -56,24 +56,25 @@ from django.shortcuts import render
 from django.db.models import Q
 from .models import Household, Person
 
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Household, Person
 
 def qlnk(request):
     # ===== 1. Lấy từ khóa tìm kiếm =====
-    search_query_hk = request.GET.get('search_hk', '').strip()
+    search_query_hk = request.GET.get('searchHoKhau', '').strip()
     search_query_nk = request.GET.get('search_nk', '').strip()
 
     # ====================================
     # 2. TÌM KIẾM HỘ KHẨU
     # ====================================
     households = Household.objects.all()
-
     if search_query_hk:
         households = households.filter(
             Q(code__icontains=search_query_hk) |
             Q(head_name__icontains=search_query_hk) |
             Q(address__icontains=search_query_hk)
         )
-
     households = households.order_by('code')
 
     household_list = [
@@ -82,7 +83,7 @@ def qlnk(request):
             'code': h.code,
             'head_name': h.head_name,
             'address': h.address,
-            'person_count': h.members.count(),    # vì Person có FK household
+            'person_count': h.members.count() if hasattr(h, 'members') else 0,
         }
         for h in households
     ]
@@ -91,14 +92,12 @@ def qlnk(request):
     # 3. TÌM KIẾM NHÂN KHẨU
     # ====================================
     persons = Person.objects.select_related('household').all()
-
     if search_query_nk:
         persons = persons.filter(
             Q(full_name__icontains=search_query_nk) |
             Q(id_number__icontains=search_query_nk) |
             Q(dob__icontains=search_query_nk)
         )
-
     persons = persons.order_by('full_name')
 
     person_list = [
@@ -119,12 +118,9 @@ def qlnk(request):
     # 4. TRẢ DỮ LIỆU SANG TEMPLATE
     # ====================================
     context = {
-        # Hộ khẩu
         'households': household_list,
         'household_count': len(household_list),
-        'search_query_hk': search_query_hk,
-
-        # Nhân khẩu
+        'searchHoKhau': search_query_hk,
         'persons': person_list,
         'person_count': len(person_list),
         'search_query_nk': search_query_nk,
@@ -196,45 +192,7 @@ from .models import Household, Person
 from django.db.models import Q
 
 def sohokhau(request):
-    """
-    Trang Quản Lý Nhân Khẩu với search Hộ khẩu / Nhân khẩu
-    """
-    # Lấy query từ GET request
-    search_hk = request.GET.get('searchHoKhau', '').strip()
-    search_nk = request.GET.get('searchNhanKhau', '').strip()
-
-    households = Household.objects.prefetch_related('members').all()
-
-    # Search Hộ khẩu / Chủ hộ
-    if search_hk:
-        households = households.filter(
-            Q(code__icontains=search_hk) |
-            Q(head_name__icontains=search_hk) |
-            Q(address__icontains=search_hk)
-        )
-
-    # Nếu search Nhân khẩu, lọc Household theo Person
-    if search_nk:
-        households = households.filter(
-            members__full_name__icontains=search_nk
-        ).distinct()
-
-    # Tạo danh sách để truyền vào template
-    household_list = []
-    for h in households.order_by('code'):
-        household_list.append({
-            'id': h.id,
-            'code': h.code,
-            'head_name': h.head_name,
-            'address': h.address,
-            'person_count': h.members.count(),
-        })
-
-    context = {
-        'households': household_list,
-        'household_count': len(household_list),
-    }
-    return render(request, 'qlnk.html', context)
+    return render(request, 'sohokhau.html')
 
 def nhankhau(request):
 
