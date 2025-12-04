@@ -21,5 +21,7 @@ urlpatterns = [
     path("nhankhau/", views.nhankhau, name="nhankhau"),
     path("themnk/", views.themnk, name="themnk"),
     path("biendong/", views.biendong, name="biendong"),
+    path("formdoichuho/", views.formdoichuho, name="formdoichuho"),
+    path("api/households/<str:household_code>/members/", views.get_household_members, name="get_household_members"),
     path("login/", views.login_view, name="login"),
 ]

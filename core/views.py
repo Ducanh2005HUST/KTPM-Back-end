@@ -166,13 +166,13 @@ def taohokhau(request, household_id=None):
                 Person.objects.create(
                     household=household,
                     full_name=head_full_name,
-                    alias_name=head_alias,
-                    date_of_birth=head_dob,
+                    alias=head_alias,
+                    dob=head_dob,
                     gender=head_gender,
                     id_number=head_id_number,
                     occupation=head_occupation,
-                    relationship='Chủ hộ',
-                    is_household_head=True
+                    relation_to_head='Chủ hộ',
+                    is_head=True
                 )
                 
                 return JsonResponse({
@@ -198,7 +198,7 @@ def taohokhau(request, household_id=None):
         try:
             household = Household.objects.get(code=household_id)
             # Get head of household info
-            head_person = Person.objects.filter(household=household, is_household_head=True).first()
+            head_person = Person.objects.filter(household=household, is_head=True).first()
             
             context = {
                 'is_edit': True,
@@ -266,3 +266,128 @@ def biendong(request):
     
     # GET request - hiển thị form
     return render(request, 'biendong.html')
+
+def formdoichuho(request):
+    """View cho form đổi chủ hộ"""
+    if request.method == 'POST':
+        try:
+            # Lấy dữ liệu từ form JSON
+            data = json.loads(request.body)
+            
+            household_code = data.get('householdCode')
+            new_head_id = data.get('newHeadId')
+            change_date = data.get('changeDate')
+            change_reason = data.get('changeReason')
+            performed_by = data.get('performedBy')
+            approval_document = data.get('approvalDocument', '')
+            notes = data.get('notes', '')
+            
+            # Validation
+            if not all([household_code, new_head_id, change_date, change_reason, performed_by]):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Vui lòng điền đầy đủ thông tin bắt buộc!'
+                })
+            
+            # Get household and persons
+            try:
+                household = Household.objects.get(code=household_code)
+                new_head_person = Person.objects.get(id=new_head_id, household=household)
+                current_head = Person.objects.filter(household=household, is_head=True).first()
+                
+                # Check if new head is eligible (18+ years old)
+                from datetime import date
+                if new_head_person.dob:
+                    today = date.today()
+                    age = today.year - new_head_person.dob.year
+                    if today.month < new_head_person.dob.month or (today.month == new_head_person.dob.month and today.day < new_head_person.dob.day):
+                        age -= 1
+                    if age < 18:
+                        return JsonResponse({
+                            'status': 'error',
+                            'message': 'Thành viên được chọn chưa đủ 18 tuổi!'
+                        })
+                
+                # Update household head
+                if current_head:
+                    current_head.is_head = False
+                    current_head.relation_to_head = 'Thành viên' if current_head.relation_to_head == 'Chủ hộ' else current_head.relation_to_head
+                    current_head.save()
+                
+                # Set new head
+                new_head_person.is_head = True
+                new_head_person.relation_to_head = 'Chủ hộ'
+                new_head_person.save()
+                
+                # Update household
+                household.head_name = new_head_person.full_name
+                household.save()
+                
+                # TODO: Create change record for history tracking
+                
+                return JsonResponse({
+                    'status': 'success',
+                    'message': f'Đã thay đổi chủ hộ {household_code} thành công!',
+                    'new_head_name': new_head_person.full_name
+                })
+                
+            except Household.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Không tìm thấy hộ khẩu!'
+                })
+            except Person.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Không tìm thấy thành viên được chọn!'
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Dữ liệu không hợp lệ!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Có lỗi xảy ra: {str(e)}'
+            })
+    
+    # GET request - display form
+    return render(request, 'formdoichuho.html')
+
+@csrf_exempt
+def get_household_members(request, household_code):
+    """API endpoint để lấy danh sách thành viên của hộ khẩu"""
+    try:
+        household = Household.objects.get(code=household_code)
+        members = Person.objects.filter(household=household)
+        
+        members_data = []
+        for member in members:
+            members_data.append({
+                'id': member.id,
+                'full_name': member.full_name,
+                'dob': member.dob.strftime('%Y-%m-%d') if member.dob else None,
+                'gender': member.gender,
+                'relation_to_head': member.relation_to_head,
+                'id_number': member.id_number,
+                'occupation': member.occupation,
+                'is_head': member.is_head
+            })
+        
+        return JsonResponse({
+            'status': 'success',
+            'results': members_data
+        })
+        
+    except Household.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Không tìm thấy hộ khẩu!'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Có lỗi xảy ra: {str(e)}'
+        })
