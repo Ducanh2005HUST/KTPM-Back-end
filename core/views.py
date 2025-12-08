@@ -104,7 +104,8 @@ def qlnk(request):
         {
             'id': p.id,
             'full_name': p.full_name,
-            'dob': p.dob,
+            # 'dob': p.dob,
+            'dob': p.dob.strftime('%Y-%m-%d') if p.dob else '',
             'id_number': p.id_number,
             'gender': p.get_gender_display(),
             'household_code': p.household.code if p.household else '',
@@ -124,6 +125,9 @@ def qlnk(request):
         'persons': person_list,
         'person_count': len(person_list),
         'search_query_nk': search_query_nk,
+        
+        'households_json': json.dumps(household_list, ensure_ascii=False),
+        'persons_json': json.dumps(person_list, ensure_ascii=False)
     }
     return render(request, 'qlnk.html', context)
 
