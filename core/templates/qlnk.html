@@ -4,43 +4,62 @@
 <h2>Quản Lý Nhân Khẩu</h2>
 
 <div class="search-panel">
-    <div class="search-block">
+    <!-- Tìm kiếm Hộ khẩu -->
+    <form method="GET" class="search-block">
         <label for="searchHoKhau">
-            <i class="fas fa-home"></i>
-            Tìm Hộ khẩu / Chủ hộ
+            <i class="fas fa-home"></i> Tìm Hộ khẩu / Chủ hộ
         </label>
         <div class="search-input-wrapper">
             <i class="fas fa-search"></i>
-            <input id="searchHoKhau" class="search-input" 
-                   placeholder="Nhập số hộ khẩu / tên chủ hộ / địa chỉ">
+            <input name="searchHoKhau" id="searchHoKhau" class="search-input"
+                   placeholder="Nhập số hộ khẩu / tên chủ hộ / địa chỉ"
+                   value="{{ searchHoKhau }}">
         </div>
-        <div id="hkResults" class="search-results">
-            <div class="results-header">Kết quả tìm kiếm</div>
-            <div class="results-body">
-                <!-- Kết quả tìm kiếm sẽ được hiển thị ở đây -->
-            </div>
+        <button type="submit" class="btn">Tìm</button>
+    </form>
+
+    <div id="hkResults" class="search-results">
+        <div class="results-header">Kết quả Hộ khẩu ({{ household_count }})</div>
+        <div class="results-body">
+            <ul>
+                {% for h in households %}
+                <li>{{ h.code }} - {{ h.head_name }} - {{ h.address }} ({{ h.person_count }} người)</li>
+                {% empty %}
+                <li>Không có kết quả</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
-    <div class="search-block">
+    <!-- Tìm kiếm Nhân khẩu -->
+    <form method="GET" class="search-block">
         <label for="searchNhanKhau">
-            <i class="fas fa-user"></i>
-            Tìm Nhân khẩu
+            <i class="fas fa-user"></i> Tìm Nhân khẩu
         </label>
         <div class="search-input-wrapper">
             <i class="fas fa-search"></i>
-            <input id="searchNhanKhau" class="search-input" 
-                   placeholder="Nhập họ tên / CMND/CCCD / ngày sinh">
+            <input name="search_nk" id="searchNhanKhau" class="search-input"
+                   placeholder="Nhập họ tên / CMND/CCCD / ngày sinh"
+                   value="{{ search_query_nk }}">
         </div>
-        <div id="nkResults" class="search-results">
-            <div class="results-header">Kết quả tìm kiếm</div>
-            <div class="results-body">
-                <!-- Kết quả tìm kiếm sẽ được hiển thị ở đây -->
-            </div>
+        <button type="submit" class="btn">Tìm</button>
+    </form>
+
+    <div id="nkResults" class="search-results">
+        <div class="results-header">Kết quả Nhân khẩu ({{ person_count }})</div>
+        <div class="results-body">
+            <ul>
+                {% for p in persons %}
+                <li>{{ p.full_name }} - {{ p.dob }} - {{ p.id_number }} - {{ p.household_code }}</li>
+                {% empty %}
+                <li>Không có kết quả</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
 
+<!-- Quick Actions -->
 <div class="quick-actions">
     <a class="action-card" href="{% url 'sohokhau' %}">
         <i class="fas fa-book"></i>
@@ -68,60 +87,14 @@
     </a>
 </div>
 
-<!-- <div class="dashboard-panels">
-    <div class="panel pending-tasks">
-        <div class="panel-header">
-            <h3><i class="fas fa-tasks"></i> Việc chờ xử lý</h3>
-            <span class="badge">19</span>
-        </div>
-        <ul class="task-list">
-            <li>
-                <span class="task-icon"><i class="fas fa-home"></i></span>
-                <span class="task-text">5 hồ sơ tạm trú</span>
-                <a href="/tam-tru/" class="task-action">Xem</a>
-            </li>
-            <li>
-                <span class="task-icon"><i class="fas fa-walking"></i></span>
-                <span class="task-text">2 yêu cầu tạm vắng</span>
-                <a href="/tam-vang/" class="task-action">Xem</a>
-            </li>
-            <li>
-                <span class="task-icon"><i class="fas fa-file-invoice"></i></span>
-                <span class="task-text">12 khoản phí chưa xác nhận</span>
-                <a href="/thu-phi/" class="task-action">Xem</a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="panel recent-activities">
-        <div class="panel-header">
-            <h3><i class="fas fa-history"></i> Hoạt động gần đây</h3>
-        </div>
-        <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-time">12/10</div>
-                <div class="activity-content">
-                    <strong>Thêm nhân khẩu</strong>
-                    <span>HK-001</span> 
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-time">15/10</div>
-                <div class="activity-content">
-                    <strong>Cập nhật địa chỉ</strong>
-                    <span>HK-002</span>
-                </div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-time">20/10</div>
-                <div class="activity-content">
-                    <strong>Ghi nhận đóng góp</strong>
-                    <span>Đợt Tết</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
+<!-- Sửa href formdoichuho tránh NoReverseMatch -->
+<div class="task-list">
+    <li>
+        <span class="task-icon"><i class="fas fa-crown"></i></span>
+        <span class="task-text">Đổi chủ hộ</span>
+        <a href="#" class="task-action" onclick="showChangeHeadModal()">Thay đổi</a>
+    </li>
+</div>
 
 <script src="{% static 'js/qlnk.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/qlnk.css' %}">
