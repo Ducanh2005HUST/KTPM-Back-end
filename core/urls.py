@@ -15,6 +15,8 @@ urlpatterns = [
     path("home/", views.home, name="home"),
     path("qlnk/", views.qlnk, name="qlnk"),
     path("qltv_tt/", views.qltv_tt, name="qltv_tt"),
+    path("tamvang/", views.tamvang, name="tamvang"),
+    path("tamtru/", views.tamtru, name="tamtru"),
     path("thuphi/", views.thuphi, name="thuphi"),
     path("thongke_baocao/", views.thongke_baocao, name="thongke_baocao"),
     path("quanlytruycap/", views.quanly_truycap, name="quanly_truycap"),
@@ -25,4 +27,5 @@ urlpatterns = [
     path("themnk/", views.themnk, name="themnk"),
     path("biendong/", views.biendong, name="biendong"),
     path("login/", views.login_view, name="login"),
+    path("formdoichuho/", views.formdoichuho, name="formdoichuho"),
 ]

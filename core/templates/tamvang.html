@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Quản lý Tạm Vắng</h2>
+
+<div class="tvtt-wrap">
+    <!-- Tạm vắng -->
+    <section id="tab-tv" class="tvtt-panel active">
+        <form id="formTv" class="tvtt-form">
+            <div class="row">
+                <label>Chọn hộ khẩu / nhân khẩu</label>
+                <input id="tv_person" placeholder="Nhập số hộ khẩu / tên chủ hộ / nhân khẩu">
+            </div>
+            <div class="row">
+                <label>Ngày đi</label>
+                <input id="tv_ngay_di" type="date">
+                <label>Ngày dự kiến về</label>
+                <input id="tv_han" type="date">
+            </div>
+            <div class="row">
+                <label>Nơi đến</label>
+                <input id="tv_noi_den" placeholder="Nơi đến (tỉnh/quận/địa chỉ)">
+            </div>
+            <div class="row">
+                <label>Lý do</label>
+                <input id="tv_ly_do" placeholder="Lý do tạm vắng">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="addTv" class="btn primary">Thêm tạm vắng</button>
+                <button type="button" id="printTv" class="btn">In giấy tạm vắng</button>
+            </div>
+        </form>
+
+        <div class="list-panel">
+            <h3>Danh sách đang tạm vắng</h3>
+            <input id="searchTv" class="search-small" placeholder="Tìm theo tên / hộ khẩu / nơi đến">
+            <ul id="tvList" class="list-plain">
+                <!-- mẫu tĩnh -->
+                <li data-id="1"><strong>HK-001</strong> — Nguyễn Văn A — 2025-10-01 → 2025-10-15 — Nơi: Hà Nội</li>
+                <li data-id="2"><strong>HK-002</strong> — Trần Thị B — 2025-10-05 → 2025-10-12 — Nơi: Hải Phòng</li>
+            </ul>
+        </div>
+    </section>
+</div>
+
+<!-- external JS -->
+<script src="{% static 'js/tv_tt.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/qltv_tt.css' %}">
+{% endblock %}
