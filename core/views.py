@@ -56,24 +56,25 @@ from django.shortcuts import render
 from django.db.models import Q
 from .models import Household, Person
 
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Household, Person
 
 def qlnk(request):
     # ===== 1. Lấy từ khóa tìm kiếm =====
-    search_query_hk = request.GET.get('search_hk', '').strip()
+    search_query_hk = request.GET.get('searchHoKhau', '').strip()
     search_query_nk = request.GET.get('search_nk', '').strip()
 
     # ====================================
     # 2. TÌM KIẾM HỘ KHẨU
     # ====================================
     households = Household.objects.all()
-
     if search_query_hk:
         households = households.filter(
             Q(code__icontains=search_query_hk) |
             Q(head_name__icontains=search_query_hk) |
             Q(address__icontains=search_query_hk)
         )
-
     households = households.order_by('code')
 
     household_list = [
@@ -82,7 +83,7 @@ def qlnk(request):
             'code': h.code,
             'head_name': h.head_name,
             'address': h.address,
-            'person_count': h.members.count(),    # vì Person có FK household
+            'person_count': h.members.count() if hasattr(h, 'members') else 0,
         }
         for h in households
     ]
@@ -91,14 +92,12 @@ def qlnk(request):
     # 3. TÌM KIẾM NHÂN KHẨU
     # ====================================
     persons = Person.objects.select_related('household').all()
-
     if search_query_nk:
         persons = persons.filter(
             Q(full_name__icontains=search_query_nk) |
             Q(id_number__icontains=search_query_nk) |
             Q(dob__icontains=search_query_nk)
         )
-
     persons = persons.order_by('full_name')
 
     person_list = [
@@ -119,21 +118,86 @@ def qlnk(request):
     # 4. TRẢ DỮ LIỆU SANG TEMPLATE
     # ====================================
     context = {
-        # Hộ khẩu
         'households': household_list,
         'household_count': len(household_list),
-        'search_query_hk': search_query_hk,
-
-        # Nhân khẩu
+        'searchHoKhau': search_query_hk,
         'persons': person_list,
         'person_count': len(person_list),
         'search_query_nk': search_query_nk,
     }
     return render(request, 'qlnk.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.db.models import Q
+from .models import Household, Person, TemporaryRecord
+from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def qltv_tt(request):
 
-    return render(request, "qltv_tt.html")
+    # ------------------------------
+    # 1) Nếu người dùng nhấn "Thêm tạm vắng" → POST
+    # ------------------------------
+    if request.method == "POST":
+        household_input = request.POST.get("household", "").strip()   # nhập mã hộ khẩu / tên chủ hộ / nhân khẩu
+        from_date = request.POST.get("from_date", "")
+        to_date = request.POST.get("to_date", "")
+        destination = request.POST.get("destination", "")
+        reason = request.POST.get("reason", "")
+
+        # Tìm hộ khẩu theo code hoặc tên chủ hộ
+        household = Household.objects.filter(
+            Q(code__iexact=household_input) |
+            Q(head_name__icontains=household_input)
+        ).first()
+
+        if household is None:
+            return render(request, "qltv_tt.html", {
+                "error": "Không tìm thấy hộ khẩu",
+                "records": TemporaryRecord.objects.filter(rec_type="TEMP_OUT")
+            })
+
+        # Tạo bản ghi tạm vắng
+        TemporaryRecord.objects.create(
+            household=household,
+            person=None,                      # frontend không cho chọn nhân khẩu → để None
+            rec_type="TEMP_OUT",
+            from_date=datetime.strptime(from_date, "%Y-%m-%d"),
+            to_date=datetime.strptime(to_date, "%Y-%m-%d") if to_date else None,
+            destination=destination,
+            reason=reason
+        )
+
+        return HttpResponseRedirect(reverse("qltv_tt"))
+
+
+    # ------------------------------
+    # 2) Xử lý tìm kiếm danh sách tạm vắng → GET
+    # ------------------------------
+    search = request.GET.get("search", "").strip()
+
+    records = TemporaryRecord.objects.filter(rec_type="TEMP_OUT").order_by("-from_date")
+
+    if search:
+        records = records.filter(
+            Q(household__code__icontains=search) |
+            Q(household__head_name__icontains=search) |
+            Q(destination__icontains=search)
+        )
+
+    # ------------------------------
+    # 3) Trả dữ liệu cho template
+    # ------------------------------
+    print(records);
+    print(search);
+    return render(request, "qltv_tt.html", {
+        "records": records,
+        "search": search
+    })
+
 
 def thuphi(request):
 
@@ -196,45 +260,7 @@ from .models import Household, Person
 from django.db.models import Q
 
 def sohokhau(request):
-    """
-    Trang Quản Lý Nhân Khẩu với search Hộ khẩu / Nhân khẩu
-    """
-    # Lấy query từ GET request
-    search_hk = request.GET.get('searchHoKhau', '').strip()
-    search_nk = request.GET.get('searchNhanKhau', '').strip()
-
-    households = Household.objects.prefetch_related('members').all()
-
-    # Search Hộ khẩu / Chủ hộ
-    if search_hk:
-        households = households.filter(
-            Q(code__icontains=search_hk) |
-            Q(head_name__icontains=search_hk) |
-            Q(address__icontains=search_hk)
-        )
-
-    # Nếu search Nhân khẩu, lọc Household theo Person
-    if search_nk:
-        households = households.filter(
-            members__full_name__icontains=search_nk
-        ).distinct()
-
-    # Tạo danh sách để truyền vào template
-    household_list = []
-    for h in households.order_by('code'):
-        household_list.append({
-            'id': h.id,
-            'code': h.code,
-            'head_name': h.head_name,
-            'address': h.address,
-            'person_count': h.members.count(),
-        })
-
-    context = {
-        'households': household_list,
-        'household_count': len(household_list),
-    }
-    return render(request, 'qlnk.html', context)
+    return render(request, 'sohokhau.html')
 
 def nhankhau(request):
 
