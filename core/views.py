@@ -127,9 +127,77 @@ def qlnk(request):
     }
     return render(request, 'qlnk.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.db.models import Q
+from .models import Household, Person, TemporaryRecord
+from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 def qltv_tt(request):
 
-    return render(request, "qltv_tt.html")
+    # ------------------------------
+    # 1) Nếu người dùng nhấn "Thêm tạm vắng" → POST
+    # ------------------------------
+    if request.method == "POST":
+        household_input = request.POST.get("household", "").strip()   # nhập mã hộ khẩu / tên chủ hộ / nhân khẩu
+        from_date = request.POST.get("from_date", "")
+        to_date = request.POST.get("to_date", "")
+        destination = request.POST.get("destination", "")
+        reason = request.POST.get("reason", "")
+
+        # Tìm hộ khẩu theo code hoặc tên chủ hộ
+        household = Household.objects.filter(
+            Q(code__iexact=household_input) |
+            Q(head_name__icontains=household_input)
+        ).first()
+
+        if household is None:
+            return render(request, "qltv_tt.html", {
+                "error": "Không tìm thấy hộ khẩu",
+                "records": TemporaryRecord.objects.filter(rec_type="TEMP_OUT")
+            })
+
+        # Tạo bản ghi tạm vắng
+        TemporaryRecord.objects.create(
+            household=household,
+            person=None,                      # frontend không cho chọn nhân khẩu → để None
+            rec_type="TEMP_OUT",
+            from_date=datetime.strptime(from_date, "%Y-%m-%d"),
+            to_date=datetime.strptime(to_date, "%Y-%m-%d") if to_date else None,
+            destination=destination,
+            reason=reason
+        )
+
+        return HttpResponseRedirect(reverse("qltv_tt"))
+
+
+    # ------------------------------
+    # 2) Xử lý tìm kiếm danh sách tạm vắng → GET
+    # ------------------------------
+    search = request.GET.get("search", "").strip()
+
+    records = TemporaryRecord.objects.filter(rec_type="TEMP_OUT").order_by("-from_date")
+
+    if search:
+        records = records.filter(
+            Q(household__code__icontains=search) |
+            Q(household__head_name__icontains=search) |
+            Q(destination__icontains=search)
+        )
+
+    # ------------------------------
+    # 3) Trả dữ liệu cho template
+    # ------------------------------
+    print(records);
+    print(search);
+    return render(request, "qltv_tt.html", {
+        "records": records,
+        "search": search
+    })
+
 
 def thuphi(request):
 
