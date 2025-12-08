@@ -202,6 +202,57 @@ def qltv_tt(request):
         "search": search
     })
 
+def tamvang(request):
+    # View riêng cho tạm vắng - giữ nguyên logic như qltv_tt
+    if request.method == "POST":
+        household_input = request.POST.get("household", "").strip()
+        from_date = request.POST.get("from_date", "")
+        to_date = request.POST.get("to_date", "")
+        destination = request.POST.get("destination", "")
+        reason = request.POST.get("reason", "")
+
+        household = Household.objects.filter(
+            Q(code__iexact=household_input) |
+            Q(head_name__icontains=household_input)
+        ).first()
+
+        if household is None:
+            return render(request, "tamvang.html", {
+                "error": "Không tìm thấy hộ khẩu",
+                "records": TemporaryRecord.objects.filter(rec_type="TEMP_OUT")
+            })
+
+        TemporaryRecord.objects.create(
+            household=household,
+            person=None,
+            rec_type="TEMP_OUT",
+            from_date=datetime.strptime(from_date, "%Y-%m-%d"),
+            to_date=datetime.strptime(to_date, "%Y-%m-%d") if to_date else None,
+            destination=destination,
+            reason=reason
+        )
+
+        return HttpResponseRedirect(reverse("tamvang"))
+
+    search = request.GET.get("search", "").strip()
+    records = TemporaryRecord.objects.filter(rec_type="TEMP_OUT").order_by("-from_date")
+
+    if search:
+        records = records.filter(
+            Q(household__code__icontains=search) |
+            Q(household__head_name__icontains=search) |
+            Q(destination__icontains=search)
+        )
+
+    return render(request, "tamvang.html", {
+        "records": records,
+        "search": search
+    })
+
+def tamtru(request):
+    # View riêng cho tạm trú - logic tương tự
+    return render(request, "tamtru.html")
+
 
 def thuphi(request):
 
@@ -481,3 +532,5 @@ def biendong(request):
     
     # GET request - hiển thị form
     return render(request, 'biendong.html')
+def formdoichuho(request):
+    return render(request, "formdoichuho.html")

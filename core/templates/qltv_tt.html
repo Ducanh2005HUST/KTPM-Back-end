@@ -3,93 +3,14 @@
 {% block content %}
 <h2>Quản lý Tạm Vắng / Tạm Trú</h2>
 
-<div class="tvtt-tabs">
-    <button class="tab-btn active" data-tab="tv">Tạm vắng</button>
-    <button class="tab-btn" data-tab="tt">Tạm trú</button>
+<div class="tvtt-buttons">
+  <a href="{% url 'tamvang' %}" class="btn-large">
+    <i class="fas fa-plane-departure"></i> Tạm vắng
+  </a>
+  <a href="{% url 'tamtru' %}" class="btn-large">
+    <i class="fas fa-user-clock"></i> Tạm trú
+  </a>
 </div>
 
-<div class="tvtt-wrap">
-    <!-- Tạm vắng -->
-    <section id="tab-tv" class="tvtt-panel active">
-        <form id="formTv" class="tvtt-form">
-            <div class="row">
-                <label>Chọn hộ khẩu / nhân khẩu</label>
-                <input id="tv_person" placeholder="Nhập số hộ khẩu / tên chủ hộ / nhân khẩu">
-            </div>
-            <div class="row">
-                <label>Ngày đi</label>
-                <input id="tv_ngay_di" type="date">
-                <label>Ngày dự kiến về</label>
-                <input id="tv_han" type="date">
-            </div>
-            <div class="row">
-                <label>Nơi đến</label>
-                <input id="tv_noi_den" placeholder="Nơi đến (tỉnh/quận/địa chỉ)">
-            </div>
-            <div class="row">
-                <label>Lý do</label>
-                <input id="tv_ly_do" placeholder="Lý do tạm vắng">
-            </div>
-            <div class="form-actions">
-                <button type="button" id="addTv" class="btn primary">Thêm tạm vắng</button>
-                <button type="button" id="printTv" class="btn">In giấy tạm vắng</button>
-            </div>
-        </form>
-
-        <div class="list-panel">
-            <h3>Danh sách đang tạm vắng</h3>
-            <input id="searchTv" class="search-small" placeholder="Tìm theo tên / hộ khẩu / nơi đến">
-            <ul id="tvList" class="list-plain">
-                <!-- mẫu tĩnh -->
-                <li data-id="1"><strong>HK-001</strong> — Nguyễn Văn A — 2025-10-01 → 2025-10-15 — Nơi: Hà Nội</li>
-                <li data-id="2"><strong>HK-002</strong> — Trần Thị B — 2025-10-05 → 2025-10-12 — Nơi: Hải Phòng</li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- Tạm trú -->
-    <section id="tab-tt" class="tvtt-panel">
-        <form id="formTt" class="tvtt-form">
-            <div class="row">
-                <label>Họ tên</label>
-                <input id="tt_ho_ten" placeholder="Họ tên">
-                <label>Ngày sinh</label>
-                <input id="tt_ngay_sinh" type="date">
-            </div>
-            <div class="row">
-                <label>CMND/CCCD</label>
-                <input id="tt_cmnd" placeholder="Số CMND/CCCD">
-                <label>Nghề nghiệp</label>
-                <input id="tt_nghe_nghiep" placeholder="Nghề nghiệp">
-            </div>
-            <div class="row">
-                <label>Địa chỉ tạm trú (chủ nhà)</label>
-                <input id="tt_dia_chi" placeholder="Địa chỉ, chủ nhà">
-            </div>
-            <div class="row">
-                <label>Ngày đến</label>
-                <input id="tt_ngay_den" type="date">
-                <label>Thời hạn</label>
-                <input id="tt_han" type="date">
-            </div>
-            <div class="form-actions">
-                <button type="button" id="addTt" class="btn primary">Thêm tạm trú</button>
-                <button type="button" id="printTt" class="btn">In giấy tạm trú</button>
-            </div>
-        </form>
-
-        <div class="list-panel">
-            <h3>Danh sách đang tạm trú</h3>
-            <input id="searchTt" class="search-small" placeholder="Tìm theo tên / CMND / chủ nhà">
-            <ul id="ttList" class="list-plain">
-                <!-- mẫu tĩnh -->
-                <li data-id="1">Nguyễn Văn C — 2001-05-12 — CCCD: 012345678 — Địa chỉ: Số 5, phố Z (chủ: A)</li>
-            </ul>
-        </div>
-    </section>
-</div>
-
-<!-- external JS -->
-<script src="{% static 'js/tv_tt.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/qltv_tt.css' %}">
 {% endblock %}

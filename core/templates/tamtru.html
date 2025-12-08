@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Quản lý Tạm Trú</h2>
+
+<div class="tvtt-wrap">
+    <!-- Tạm trú -->
+    <section id="tab-tt" class="tvtt-panel active">
+        <form id="formTt" class="tvtt-form">
+            <div class="row">
+                <label>Họ tên</label>
+                <input id="tt_ho_ten" placeholder="Họ tên">
+                <label>Ngày sinh</label>
+                <input id="tt_ngay_sinh" type="date">
+            </div>
+            <div class="row">
+                <label>CMND/CCCD</label>
+                <input id="tt_cmnd" placeholder="Số CMND/CCCD">
+                <label>Nghề nghiệp</label>
+                <input id="tt_nghe_nghiep" placeholder="Nghề nghiệp">
+            </div>
+            <div class="row">
+                <label>Địa chỉ tạm trú (chủ nhà)</label>
+                <input id="tt_dia_chi" placeholder="Địa chỉ, chủ nhà">
+            </div>
+            <div class="row">
+                <label>Ngày đến</label>
+                <input id="tt_ngay_den" type="date">
+                <label>Thời hạn</label>
+                <input id="tt_han" type="date">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="addTt" class="btn primary">Thêm tạm trú</button>
+                <button type="button" id="printTt" class="btn">In giấy tạm trú</button>
+            </div>
+        </form>
+
+        <div class="list-panel">
+            <h3>Danh sách đang tạm trú</h3>
+            <input id="searchTt" class="search-small" placeholder="Tìm theo tên / CMND / chủ nhà">
+            <ul id="ttList" class="list-plain">
+                <!-- mẫu tĩnh -->
+                <li data-id="1">Nguyễn Văn C — 2001-05-12 — CCCD: 012345678 — Địa chỉ: Số 5, phố Z (chủ: A)</li>
+            </ul>
+        </div>
+    </section>
+</div>
+
+<!-- external JS -->
+<script src="{% static 'js/tv_tt.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/qltv_tt.css' %}">
+{% endblock %}
