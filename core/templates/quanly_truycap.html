@@ -29,49 +29,38 @@
 
                 <div style="margin-bottom:16px;">
                     <label style="display:block; margin-bottom:10px; font-weight:600; color:#333; font-size:15px;">
-                        <i class="fas fa-shield-alt"></i> Phân quyền chức năng
+                        <i class="fas fa-user-tag"></i> Chọn vai trò
                     </label>
                     <div style="border:2px solid #e3f2fd; border-radius:8px; padding:12px; background:#fafafa;">
+                        <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left:4px solid #d32f2f;">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                                <input type="radio" name="role" value="to_truong" style="width:18px; height:18px; cursor:pointer;">
+                                <span style="flex:1;">
+                                    <strong style="color:#d32f2f;">Tổ trưởng</strong>
+                                    <br>
+                                    <small style="color:#666;">Quản lý nhân khẩu, tạm trú/vắng, thống kê báo cáo</small>
+                                </span>
+                            </label>
+                        </div>
+
                         <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left:4px solid #1565c0;">
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                                <input type="checkbox" name="perm_qlnk" style="width:18px; height:18px; cursor:pointer;">
+                                <input type="radio" name="role" value="to_pho" style="width:18px; height:18px; cursor:pointer;">
                                 <span style="flex:1;">
-                                    <strong style="color:#1565c0;">Quản lý nhân khẩu</strong>
+                                    <strong style="color:#1565c0;">Tổ phó</strong>
                                     <br>
-                                    <small style="color:#666;">Quản lý thông tin nhân khẩu, sổ hộ khẩu, biến động dân cư</small>
+                                    <small style="color:#666;">Quản lý nhân khẩu, tạm trú/vắng, thống kê báo cáo</small>
                                 </span>
                             </label>
                         </div>
 
-                        <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left:4px solid #2e7d32;">
+                        <div style="padding:10px; background:white; border-radius:6px; border-left:4px solid #2e7d32;">
                             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                                <input type="checkbox" name="perm_thuphi" style="width:18px; height:18px; cursor:pointer;">
+                                <input type="radio" name="role" value="can_bo" style="width:18px; height:18px; cursor:pointer;">
                                 <span style="flex:1;">
-                                    <strong style="color:#2e7d32;">Quản lý thu phí đóng góp</strong>
+                                    <strong style="color:#2e7d32;">Cán bộ</strong>
                                     <br>
-                                    <small style="color:#666;">Quản lý các khoản thu phí, đóng góp của hộ dân</small>
-                                </span>
-                            </label>
-                        </div>
-
-                        <div style="margin-bottom:10px; padding:10px; background:white; border-radius:6px; border-left:4px solid #f57c00;">
-                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                                <input type="checkbox" name="perm_tamtru" style="width:18px; height:18px; cursor:pointer;">
-                                <span style="flex:1;">
-                                    <strong style="color:#f57c00;">Quản lý tạm trú / tạm vắng</strong>
-                                    <br>
-                                    <small style="color:#666;">Quản lý thông tin tạm trú, tạm vắng của dân cư</small>
-                                </span>
-                            </label>
-                        </div>
-
-                        <div style="padding:10px; background:white; border-radius:6px; border-left:4px solid #7b1fa2;">
-                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                                <input type="checkbox" name="perm_thongke" style="width:18px; height:18px; cursor:pointer;">
-                                <span style="flex:1;">
-                                    <strong style="color:#7b1fa2;">Thống kê & Báo cáo</strong>
-                                    <br>
-                                    <small style="color:#666;">Xem thống kê và tạo báo cáo về dân cư</small>
+                                    <small style="color:#666;">Quản lý thu phí, thống kê báo cáo</small>
                                 </span>
                             </label>
                         </div>
