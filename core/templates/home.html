@@ -1,47 +1,78 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
+
 <div class="stats-grid">
-    <div class="stat-card blue">
-        <i class="fas fa-id-card icon"></i>
-        <span class="number">358</span>
-        <span class="label">Hộ khẩu</span>
-    </div>
-    <div class="stat-card green">
-        <i class="fas fa-users icon"></i>
-        <span class="number">1,210</span>
-        <span class="label">Nhân khẩu</span>
-    </div>
-    <div class="stat-card yellow">
-        <i class="fas fa-file-invoice-dollar icon"></i>
-        <span class="number">6,120</span>
-        <span class="label">Thu phí dịch vụ</span>
-    </div>
-    <div class="stat-card purple">
-        <i class="fas fa-chart-pie icon"></i>
-        <span class="number">40+</span>
-        <span class="label">Báo cáo thống kê</span>
-    </div>
+  <div class="stat-card blue">
+    <i class="fas fa-id-card icon"></i>
+    <span class="number">358</span>
+    <span class="label">Hộ khẩu</span>
+  </div>
+  <div class="stat-card green">
+    <i class="fas fa-users icon"></i>
+    <span class="number">1,210</span>
+    <span class="label">Nhân khẩu</span>
+  </div>
+  <div class="stat-card yellow">
+    <i class="fas fa-file-invoice-dollar icon"></i>
+    <span class="number">6,120</span>
+    <span class="label">Thu phí dịch vụ</span>
+  </div>
+  <div class="stat-card purple">
+    <i class="fas fa-chart-pie icon"></i>
+    <span class="number">40+</span>
+    <span class="label">Báo cáo thống kê</span>
+  </div>
 </div>
 
 <div class="main-sections">
-    <div class="welcome-box">
-        <h2>Chào mừng đến với Hệ thống Quản lý Dân cư Phường La Khê</h2>
-        <p>Đây là nền tảng hỗ trợ Ban quản lý Tổ dân phố trong việc theo dõi, cập nhật, và thống kê thông tin dân cư</p>
-        <p>Minh bạch hóa thông tin - Nâng cao hiệu quả quản lý</p>
-        <p>Mọi dữ liệu được bảo mật và cập nhật liên tục</p>
-        <div class="placeholder-image"></div>
-    </div>
 
-    <div class="quick-links-box">
-        <h2>Chức năng nhanh</h2>
-        <ul>
-            <li><a href="{% url 'qlnk' %}"><i class="fas fa-users"></i> Quản lý nhân khẩu</a></li>
-            <li><a href="{% url 'qltv_tt' %}"><i class="fas fa-receipt"></i> Thêm tạm trú/ tạm vắng</a></li>
-            <li><a href="{% url 'thuphi' %}"><i class="fas fa-file-invoice-dollar"></i> Thu phí đóng góp</a></li>
-            <li><a href="{% url 'thongke_baocao' %}"><i class="fas fa-chart-bar"></i> Xem báo cáo mới nhất</a></li>
-        </ul>
-    </div>
+  <div class="welcome-box">
+    <h2>Chào mừng đến với Hệ thống Quản lý Dân cư Phường La Khê</h2>
+    <p>Đây là nền tảng hỗ trợ Ban quản lý Tổ dân phố trong việc theo dõi, cập nhật, và thống kê thông tin dân cư</p>
+    <p>Minh bạch hóa thông tin - Nâng cao hiệu quả quản lý</p>
+    <p>Mọi dữ liệu được bảo mật và cập nhật liên tục</p>
+    <div class="placeholder-image"></div>
+  </div>
+
+  <div class="quick-links-box">
+    <h2>Chức năng nhanh</h2>
+
+    <ul>
+
+      {# ==== QUẢN LÝ NHÂN KHẨU ==== #}
+      {% if role == "ADMIN" or role == "TO_TRUONG" or role == "TO_PHO" %}
+      <li>
+        <a href="{% url 'qlnk' %}"><i class="fas fa-users"></i> Quản lý nhân khẩu</a>
+      </li>
+      {% endif %}
+
+      {# ==== TẠM TRÚ / TẠM VẮNG ==== #}
+      {% if role == "ADMIN" or role == "TO_TRUONG" or role == "TO_PHO" or role == "CAN_BO" %}
+      <li>
+        <a href="{% url 'qltv_tt' %}"><i class="fas fa-receipt"></i> Thêm tạm trú/ tạm vắng</a>
+      </li>
+      {% endif %}
+
+      {# ==== THU PHÍ ==== #}
+      {% if role == "ADMIN" or role == "TO_TRUONG" %}
+      <li>
+        <a href="{% url 'thuphi' %}"><i class="fas fa-file-invoice-dollar"></i> Thu phí đóng góp</a>
+      </li>
+      {% endif %}
+
+      {# ==== XEM BÁO CÁO ==== #}
+      {% if role == "ADMIN" or role == "TO_TRUONG" or role == "TO_PHO" %}
+      <li>
+        <a href="{% url 'thongke_baocao' %}"><i class="fas fa-chart-bar"></i> Xem báo cáo mới nhất</a>
+      </li>
+      {% endif %}
+
+    </ul>
+  </div>
+
 </div>
+
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}

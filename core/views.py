@@ -31,8 +31,14 @@ class PaymentViewSet(viewsets.ModelViewSet):
         qs = Payment.objects.filter(status='PAID').annotate(month=TruncMonth('created_at')).values('month').annotate(total=Sum('amount')).order_by('month')
         return Response(list(qs))
 
+# def home(request):
+#     return render(request, "home.html")
 def home(request):
-    return render(request, "home.html")
+    role = request.session.get("user_role", "CAN_BO")
+    return render(request, "home.html", {"role": role})
+
+
+
 
 
 from django.shortcuts import render
@@ -278,29 +284,47 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 def login_view(request):
+    
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Tìm user bằng email
         try:
             user_obj = User.objects.get(email=email)
         except User.DoesNotExxist:
             messages.error(request, "Email không tồn tại!")
             return render(request, 'login.html')
 
+<<<<<<< Updated upstream
         # Authenticate bằng USERNAME (do Django không login bằng email)
+=======
+>>>>>>> Stashed changes
         user = authenticate(request, username=user_obj.username, password=password)
 
         if user is not None:
             login(request, user)
+<<<<<<< Updated upstream
+=======
+
+            try:
+                role = user.role.role
+            except:
+                role = "CAN_BO"
+
+            print("ROLE ĐĂNG NHẬP =", role)
+
+            request.session['user_role'] = role
+
+>>>>>>> Stashed changes
             return redirect('home')
-        else:
-            messages.error(request, "Mật khẩu không chính xác!")
 
     return render(request, 'login.html')
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 def taohokhau(request, household_id=None):
     """View cho trang tạo/cập nhật hộ khẩu"""
 
