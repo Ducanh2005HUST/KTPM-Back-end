@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+
 
 class Household(models.Model):
     code = models.CharField(max_length=20, unique=True)
@@ -66,3 +68,60 @@ class Payment(models.Model):
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self): return f"{self.household.code} - {self.amount}"
+class UserRole(models.Model):
+    ROLE_CHOICES = [
+        ("ADMIN", "Admin"),
+        ("TO_TRUONG", "Tổ trưởng"),
+        ("TO_PHO", "Tổ phó"),
+        ("CAN_BO", "Cán bộ"),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="role")
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
+
+
+# ============================
+# AUTO ASSIGN ROLE BY EMAIL
+# ============================
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+def get_role_from_email(email: str):
+    if not email:
+        return "CAN_BO"
+
+    email = email.lower().strip()
+
+    if email.endswith("@admin.com"):
+        return "ADMIN"
+
+    if email.endswith("@totruong.com"):
+        return "TO_TRUONG"
+
+    if email.endswith("@topho.com"):
+        return "TO_PHO"
+
+    if email.endswith("@canbo.com"):
+        return "CAN_BO"
+
+    return "CAN_BO"
+
+
+@receiver(post_save, sender=User)
+def auto_assign_role(sender, instance, created, **kwargs):
+    if created:
+        # Lấy model UserRole từ registry, tránh circular import
+        UserRole = instance._meta.apps.get_model('core', 'UserRole')
+
+        UserRole.objects.create(
+            user=instance,
+            role=get_role_from_email(instance.email)
+        )

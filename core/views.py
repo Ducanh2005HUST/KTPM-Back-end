@@ -3,12 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models.functions import TruncMonth
 from django.db.models import Sum
-from .models import Household, Person, Payment
+from .models import Household, Person, Payment,UserRole
 from .serializers import HouseholdSerializer, PersonSerializer, PaymentSerializer
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 import json
+
 
 class HouseholdViewSet(viewsets.ModelViewSet):
     queryset = Household.objects.all().order_by('code')
@@ -327,7 +328,6 @@ def themnk(request):
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
-
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -336,22 +336,31 @@ def login_view(request):
         # Tìm user bằng email
         try:
             user_obj = User.objects.get(email=email)
-        except User.DoesNotExxist:
+        except User.DoesNotExist:
             messages.error(request, "Email không tồn tại!")
             return render(request, 'login.html')
 
-        # Authenticate bằng USERNAME (do Django không login bằng email)
+        # Authenticate bằng username
         user = authenticate(request, username=user_obj.username, password=password)
 
         if user is not None:
             login(request, user)
+
+            # ===== LẤY ROLE NGƯỜI DÙNG =====
+            try:
+                role = user.role.role
+            except UserRole.DoesNotExist:
+                role = "CAN_BO"    # nếu chưa có role thì gán mặc định
+
+            # Lưu role vào session
+            print(role);
+            request.session['user_role'] = role
+
             return redirect('home')
         else:
             messages.error(request, "Mật khẩu không chính xác!")
 
     return render(request, 'login.html')
-
-
 def taohokhau(request, household_id=None):
     """View cho trang tạo/cập nhật hộ khẩu"""
 
