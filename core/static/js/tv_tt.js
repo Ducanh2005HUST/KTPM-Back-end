@@ -1,226 +1,108 @@
-// Sample data for tạm vắng
-const tamVangData = [
-    { 
-        id: 1, 
-        name: 'Nguyễn Văn A', 
-        dob: '15/03/1985',
-        startDate: '01/10/2025',
-        endDate: '15/10/2025',
-        completed: true,
-        reason: 'Công tác'
-    },
-    { 
-        id: 2, 
-        name: 'Trần Thị B', 
-        dob: '22/08/1990',
-        startDate: '05/10/2025',
-        endDate: '12/10/2025',
-        completed: false,
-        reason: 'Du lịch'
-    }
-];
-
-document.addEventListener('DOMContentLoaded', function(){
-    // tabs
-    document.querySelectorAll('.tab-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=> {
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            const tab = btn.dataset.tab;
-            document.querySelectorAll('.tvtt-panel').forEach(p=>p.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-        });
-    });
-
-    // helpers to append list item
-    function appendList(listEl, html) {
-        const li = document.createElement('li');
-        li.innerHTML = html;
-        listEl.prepend(li);
+// 1. Hàm xử lý nút Kết thúc trong bảng
+function toggleStatus(recordId, isEnding) {
+    if (!recordId || recordId === 'None' || recordId === '') {
+        alert("ID bản ghi không hợp lệ.");
+        return;
     }
 
-    // add tạm vắng
-    const addTvBtn = document.getElementById('addTv');
-    if(addTvBtn){
-        addTvBtn.addEventListener('click', function(){
-            const person = document.getElementById('tv_person').value.trim() || '—';
-            const ngayDi = document.getElementById('tv_ngay_di').value || '—';
-            const han = document.getElementById('tv_han').value || '—';
-            const noiDen = document.getElementById('tv_noi_den').value.trim() || '—';
-            const lyDo = document.getElementById('tv_ly_do').value.trim() || '';
-            const html = `<strong>${person}</strong> — ${ngayDi} → ${han} — Nơi: ${noiDen} ${lyDo? '— ' + lyDo : ''}`;
-            appendList(document.getElementById('tvList'), html);
-            // clear minimal
-            document.getElementById('formTv').reset();
-        });
-    }
+    if (!confirm("Bạn có chắc chắn muốn kết thúc đợt tạm vắng này?")) return;
 
-    // add tạm trú
-    const addTtBtn = document.getElementById('addTt');
-    if(addTtBtn){
-        addTtBtn.addEventListener('click', function(){
-            const ten = document.getElementById('tt_ho_ten').value.trim() || '—';
-            const ns = document.getElementById('tt_ngay_sinh').value || '—';
-            const cmnd = document.getElementById('tt_cmnd').value.trim() || '';
-            const diaChi = document.getElementById('tt_dia_chi').value.trim() || '—';
-            const ngayDen = document.getElementById('tt_ngay_den').value || '—';
-            const han = document.getElementById('tt_han').value || '—';
-            const html = `${ten} — ${ns} ${cmnd? '— CCCD: ' + cmnd : ''} — Địa chỉ: ${diaChi} — ${ngayDen} → ${han}`;
-            appendList(document.getElementById('ttList'), html);
-            document.getElementById('formTt').reset();
-        });
-    }
+    // Gửi yêu cầu POST để cập nhật trạng thái
+    // Lưu ý: Bạn cần tạo một view tương ứng trong views.py để xử lý URL này
+    fetch(`/update-tam-vang-status/${recordId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'status': 'finished' })
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert("Lỗi cập nhật trạng thái.");
+        }
+    })
+    .catch(err => console.error("Error:", err));
+}
 
-    // simple search filter
-    function bindSearch(inputId, listId) {
-        const inp = document.getElementById(inputId);
-        const list = document.getElementById(listId);
-        if(!inp || !list) return;
-        inp.addEventListener('input', function(){
-            const q = this.value.trim().toLowerCase();
-            Array.from(list.children).forEach(li=>{
-                li.style.display = (!q || li.textContent.toLowerCase().includes(q)) ? '' : 'none';
-            });
-        });
-    }
-    bindSearch('searchTv','tvList');
-    bindSearch('searchTt','ttList');
+// 2. Chờ DOM load xong để bắt sự kiện nút Thêm
+function handleAction(id, type) {
+    let confirmMsg = type === 'ket-thuc' 
+        ? "Xác nhận nhân khẩu này đã quay về địa phương?" 
+        : "Bạn có chắc chắn muốn xóa bản ghi này?";
+    
+    if (!confirm(confirmMsg)) return;
 
-    // print handlers: print the selected panel content (simple)
-    const printTvBtn = document.getElementById('printTv');
-    if(printTvBtn){
-        printTvBtn.addEventListener('click', function(){
-            const win = window.open('', '_blank');
-            win.document.write('<h3>Giấy tạm vắng</h3>' + document.getElementById('tab-tv').innerHTML);
-            win.print(); win.close();
-        });
-    }
-    const printTtBtn = document.getElementById('printTt');
-    if(printTtBtn){
-        printTtBtn.addEventListener('click', function(){
-            const win = window.open('', '_blank');
-            win.document.write('<h3>Giấy tạm trú</h3>' + document.getElementById('tab-tt').innerHTML);
-            win.print(); win.close();
+    // Xác định URL dựa trên loại thao tác
+    let url = type === 'ket-thuc' 
+        ? `/tam-vang/ket-thuc/${id}/` 
+        : `/tam-vang/xoa/${id}/`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            window.location.reload(); // Tải lại trang để cập nhật bảng
+        } else {
+            alert("Có lỗi xảy ra!");
+        }
+    })
+    .catch(err => console.error("Lỗi:", err));
+}
+
+// Giữ nguyên đoạn code xử lý nút "Thêm tạm vắng" cũ của bạn ở dưới này...
+document.addEventListener('DOMContentLoaded', function () {
+    const btnAddTv = document.getElementById('addTv');
+
+    if (btnAddTv) {
+        btnAddTv.addEventListener('click', function () {
+            // Lấy dữ liệu
+            const household_val = document.getElementById('tv_person').value;
+            const from_date_val = document.getElementById('tv_ngay_bat_dau').value;
+            const to_date_val = document.getElementById('tv_ngay_ket_thuc').value;
+            const reason_val = document.getElementById('tv_ly_do').value;
+
+            if (!household_val || !from_date_val) {
+                alert("Vui lòng nhập Nhân khẩu và Ngày bắt đầu!");
+                return;
+            }
+
+            // Đóng gói dữ liệu gửi lên views.py
+            const formData = new FormData();
+            formData.append('household', household_val);
+            formData.append('from_date', from_date_val);
+            formData.append('to_date', to_date_val);
+            formData.append('destination', 'Tại địa phương');
+            formData.append('reason', reason_val);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            // Gửi AJAX
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Thành công!");
+                    window.location.reload();
+                } else {
+                    alert("Có lỗi xảy ra, vui lòng kiểm tra lại thông tin.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     }
 });
-
-// Global function to toggle tạm vắng status (similar to handleFeeAction in thuphi.js)
-function toggleStatus(id, isCompleting) {
-    const record = tamVangData.find(r => r.id === id);
-    if (!record) return;
-    
-    // Toggle completed status
-    record.completed = !record.completed;
-    
-    // Find the row
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (!row) return;
-    
-    const statusCell = row.querySelector('.status-badge');
-    const actionBtn = row.querySelector('.btn-action');
-    
-    // Update status badge
-    if (record.completed) {
-        statusCell.classList.remove('status-active', 'status-overdue');
-        statusCell.classList.add('status-completed');
-        statusCell.textContent = 'Đã kết thúc';
-        actionBtn.innerHTML = '<i class="fas fa-undo"></i> Hoàn tác';
-        actionBtn.setAttribute('onclick', `toggleStatus(${id}, false)`);
-        row.classList.remove('overdue-row');
-    } else {
-        statusCell.classList.remove('status-completed');
-        statusCell.classList.add('status-active');
-        statusCell.textContent = 'Chưa kết thúc';
-        actionBtn.innerHTML = '<i class="fas fa-check"></i> Kết thúc';
-        actionBtn.setAttribute('onclick', `toggleStatus(${id}, true)`);
-        
-        // Check if overdue
-        const today = new Date();
-        const endDate = parseDate(record.endDate);
-        if (endDate < today) {
-            statusCell.classList.add('status-overdue');
-            statusCell.textContent = 'Quá hạn';
-            row.classList.add('overdue-row');
-        }
-    }
-    
-    // Visual feedback (like thuphi)
-    statusCell.style.transform = 'scale(1.1)';
-    setTimeout(() => {
-        statusCell.style.transform = 'scale(1)';
-    }, 150);
-}
-
-// Helper function for date parsing
-function parseDate(dateStr) {
-    const parts = dateStr.split('/');
-    return new Date(parts[2], parts[1] - 1, parts[0]);
-}
-
-// Sample data for tạm trú
-const tamTruData = [
-    { 
-        id: 1, 
-        name: 'Nguyễn Văn C', 
-        dob: '12/05/2001',
-        householdCode: 'HK-001',
-        startDate: '01/11/2025',
-        endDate: '15/11/2025',
-        completed: true
-    },
-    { 
-        id: 2, 
-        name: 'Lê Thị D', 
-        dob: '08/09/1995',
-        householdCode: 'HK-002',
-        startDate: '10/11/2025',
-        endDate: '20/11/2025',
-        completed: false
-    }
-];
-
-// Global function to toggle tạm trú status (similar to toggleStatus for tạm vắng)
-function toggleTamTruStatus(id) {
-    const record = tamTruData.find(r => r.id === id);
-    if (!record) return;
-    
-    // Toggle completed status
-    record.completed = !record.completed;
-    
-    // Find the row
-    const row = document.querySelector(`tr[data-id="${id}"]`);
-    if (!row) return;
-    
-    const statusCell = row.querySelector('.status-badge');
-    const actionBtn = row.querySelector('.btn-action');
-    
-    // Update status badge
-    if (record.completed) {
-        statusCell.classList.remove('status-active', 'status-overdue');
-        statusCell.classList.add('status-completed');
-        statusCell.textContent = 'Đã kết thúc';
-        actionBtn.innerHTML = '<i class="fas fa-undo"></i> Hoàn tác';
-        row.classList.remove('overdue-row');
-    } else {
-        statusCell.classList.remove('status-completed');
-        statusCell.classList.add('status-active');
-        statusCell.textContent = 'Chưa kết thúc';
-        actionBtn.innerHTML = '<i class="fas fa-check"></i> Kết thúc';
-        
-        // Check if overdue
-        const today = new Date();
-        const endDate = parseDate(record.endDate);
-        if (endDate < today) {
-            statusCell.classList.add('status-overdue');
-            statusCell.textContent = 'Quá hạn';
-            row.classList.add('overdue-row');
-        }
-    }
-    
-    // Visual feedback
-    statusCell.style.transform = 'scale(1.1)';
-    setTimeout(() => {
-        statusCell.style.transform = 'scale(1)';
-    }, 150);
-}

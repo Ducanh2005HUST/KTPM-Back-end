@@ -138,6 +138,7 @@ from django.db.models import Q
 from .models import Household, Person, TemporaryRecord
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 @csrf_exempt
 def qltv_tt(request):
@@ -202,52 +203,64 @@ def qltv_tt(request):
     })
 
 def tamvang(request):
-    # View riêng cho tạm vắng - giữ nguyên logic như qltv_tt
     if request.method == "POST":
+        # Lấy dữ liệu từ FormData (JS gửi lên)
         household_input = request.POST.get("household", "").strip()
         from_date = request.POST.get("from_date", "")
         to_date = request.POST.get("to_date", "")
-        destination = request.POST.get("destination", "")
         reason = request.POST.get("reason", "")
 
+        # TÌM KIẾM HỘ KHẨU: Tìm theo mã hộ HOẶC tên chủ hộ
         household = Household.objects.filter(
             Q(code__iexact=household_input) |
             Q(head_name__icontains=household_input)
         ).first()
 
-        if household is None:
-            return render(request, "tamvang.html", {
-                "error": "Không tìm thấy hộ khẩu",
-                "records": TemporaryRecord.objects.filter(rec_type="TEMP_OUT")
-            })
+        if household:
+            # TẠO BẢN GHI
+            TemporaryRecord.objects.create(
+                household=household,
+                person=None, # Bạn có thể cải tiến để tìm thêm Person ở đây
+                rec_type="TEMP_OUT",
+                from_date=datetime.strptime(from_date, "%Y-%m-%d") if from_date else timezone.now(),
+                to_date=datetime.strptime(to_date, "%Y-%m-%d") if to_date else None,
+                destination="Tại địa phương",
+                reason=reason
+            )
+            # Nếu là AJAX request, trả về JSON để JS biết mà reload
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"status": "success"})
+            return redirect("tamvang")
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({"status": "error", "message": "Không tìm thấy hộ khẩu"}, status=400)
 
-        TemporaryRecord.objects.create(
-            household=household,
-            person=None,
-            rec_type="TEMP_OUT",
-            from_date=datetime.strptime(from_date, "%Y-%m-%d"),
-            to_date=datetime.strptime(to_date, "%Y-%m-%d") if to_date else None,
-            destination=destination,
-            reason=reason
-        )
-
-        return HttpResponseRedirect(reverse("tamvang"))
-
+    # PHẦN HIỂN THỊ (GET)
+    # Quan trọng: Bỏ hết lọc để xem dữ liệu có hiện ra không đã
+    records = TemporaryRecord.objects.filter(rec_type="TEMP_OUT").order_by("-id") # Sắp xếp ID mới nhất lên đầu
+    
     search = request.GET.get("search", "").strip()
-    records = TemporaryRecord.objects.filter(rec_type="TEMP_OUT").order_by("-from_date")
-
     if search:
         records = records.filter(
             Q(household__code__icontains=search) |
-            Q(household__head_name__icontains=search) |
-            Q(destination__icontains=search)
+            Q(household__head_name__icontains=search)
         )
 
-    return render(request, "tamvang.html", {
-        "records": records,
-        "search": search
-    })
+    return render(request, "tamvang.html", {"records": records, "search": search,"today": timezone.now().date()})
+# 1. Hàm kết thúc tạm vắng (Xác nhận đã về)
+def ket_thuc_tam_vang(request, pk):
+    if request.method == "POST":
+        record = get_object_or_404(TemporaryRecord, pk=pk)
+        record.to_date = timezone.now().date() # Gán ngày kết thúc là hôm nay
+        record.save()
+        return JsonResponse({"status": "success", "message": "Đã kết thúc tạm vắng"})
 
+# 2. Hàm xóa bản ghi
+def xoa_tam_vang(request, pk):
+    if request.method == "POST":
+        record = get_object_or_404(TemporaryRecord, pk=pk)
+        record.delete()
+        return JsonResponse({"status": "success", "message": "Đã xóa bản ghi"})
 def tamtru(request):
     # View riêng cho tạm trú - logic tương tự
     return render(request, "tamtru.html")

@@ -33,5 +33,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("formdoichuho/", views.formdoichuho, name="formdoichuho"),
     path("404/", views.page_not_found, name="404"),
+    path('tam-vang/ket-thuc/<int:pk>/', views.ket_thuc_tam_vang, name='ket_thuc_tam_vang'),
+    path('tam-vang/xoa/<int:pk>/', views.xoa_tam_vang, name='xoa_tam_vang'),
 
 ]

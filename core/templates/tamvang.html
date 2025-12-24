@@ -11,34 +11,34 @@
 </div>
 
 <div class="tvtt-wrap">
-    <!-- Tạm vắng -->
     <section id="tab-tv" class="tvtt-panel active">
         <form id="formTv" class="tvtt-form">
+            {% csrf_token %}
             <div class="row">
-                <label>Chọn nhân khẩu</label>
-                <input id="tv_person" placeholder="Nhập họ và tên / CMND/CCCD">
+                <label>Chọn nhân khẩu/Hộ khẩu</label>
+                <input id="tv_person" name="household" placeholder="Nhập họ và tên chủ hộ / Mã hộ khẩu">
             </div>
             <div class="row">
-                <label>Ngày sinh</label>
+                <label>Ngày sinh (nếu có)</label>
                 <input id="tv_ngay_sinh" type="date">
             </div>
             <div class="row">
                 <label>Ngày bắt đầu</label>
-                <input id="tv_ngay_bat_dau" type="date">
+                <input id="tv_ngay_bat_dau" name="from_date" type="date">
                 <label>Ngày kết thúc</label>
-                <input id="tv_ngay_ket_thuc" type="date">
+                <input id="tv_ngay_ket_thuc" name="to_date" type="date">
             </div>
             <div class="row">
                 <label>Lý do</label>
-                <input id="tv_ly_do" placeholder="Lý do tạm vắng">
+                <input id="tv_ly_do" name="reason" placeholder="Lý do tạm vắng">
             </div>
             <div class="form-actions">
                 <button type="button" id="addTv" class="btn primary">Thêm tạm vắng</button>
             </div>
         </form>
 
-        <div class="list-panel">
-            <h3>Bảng đang tạm vắng</h3>
+        <div class="list-panel" style="margin-top: 2rem;">
+            <h3>Bảng danh sách tạm vắng</h3>
             <div class="table-container">
                 <table class="table-basic">
                     <thead>
@@ -52,31 +52,50 @@
                         </tr>
                     </thead>
                     <tbody id="tvList">
-                        <!-- Dữ liệu mẫu -->
-                        <tr data-id="1">
-                            <td><strong>Nguyễn Văn A</strong></td>
-                            <td>15/03/1985</td>
-                            <td>01/10/2025</td>
-                            <td>15/10/2025</td>
-                            <td><span class="status-badge status-overdue">Đã kết thúc</span></td>
+                        {% for rec in records %}
+                        <tr data-id="{{ rec.id }}">
                             <td>
-                                <button class="btn-sm btn-action" onclick="toggleStatus(1, false)">
-                                    <i class="fas fa-undo"></i> Hoàn tác
-                                </button>
+                                <strong>
+                                    {% if rec.person %}
+                                        {{ rec.person.full_name }}
+                                    {% else %}
+                                        {{ rec.household.head_name }} (Chủ hộ)
+                                    {% endif %}
+                                </strong>
+                            </td>
+                            <td>{{ rec.person.dob|date:"d/m/Y"|default:"-" }}</td>
+                            <td>{{ rec.from_date|date:"d/m/Y" }}</td>
+                            <td>{{ rec.to_date|date:"d/m/Y"|default:"Chưa xác định" }}</td>
+                            <td>
+                                {% if not rec.to_date %}
+                                    <span class="status-badge status-active">Đang tạm vắng</span>
+                                {% elif rec.to_date >= today %}
+                                    <span class="status-badge status-active">Đang tạm vắng</span>
+                                {% else %}
+                                    <span class="status-badge status-overdue">Đã kết thúc</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if not rec.to_date or rec.to_date >= today %}
+                                    <button class="btn-sm btn-success" title="Xác nhận quay về" 
+                                            onclick="handleAction('{{ rec.id }}', 'ket-thuc')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+
+                                    <button class="btn-sm btn-danger" title="Xóa bản ghi" 
+                                            onclick="handleAction('{{ rec.id }}', 'xoa')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-                        <tr data-id="2">
-                            <td><strong>Trần Thị B</strong></td>
-                            <td>22/08/1990</td>
-                            <td>05/10/2025</td>
-                            <td>12/10/2025</td>
-                            <td><span class="status-badge status-active">Chưa kết thúc</span></td>
-                            <td>
-                                <button class="btn-sm btn-action" onclick="toggleStatus(2, true)">
-                                    <i class="fas fa-check"></i> Kết thúc
-                                </button>
-                            </td>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Chưa có dữ liệu tạm vắng</td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -84,8 +103,6 @@
     </section>
 </div>
 
-<!-- external JS -->
 <script src="{% static 'js/tv_tt.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/qltv_tt.css' %}">
-<link rel="stylesheet" href="{% static 'css/nhankhau.css' %}">
 {% endblock %}
