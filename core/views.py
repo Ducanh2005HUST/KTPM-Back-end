@@ -1040,27 +1040,32 @@ def thuphi(request):
 
             households = HouseholdDetail.objects.all()
 
-            with connection.cursor() as cursor:
-                for h in households:
-                    cursor.execute(
-                        "SELECT insert_household_data(%s, %s)",
-                        [int(year), h.ma_ho_khau]
-                    )
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    for h in households:
+                        cursor.execute(
+                            "SELECT insert_household_data(%s, %s)",
+                            [int(year), h.ma_ho_khau]
+                        )
 
             messages.success(request, f"Đã lập phí vệ sinh cho năm {year}")
             return redirect("thuphi")
         
         elif action == "save_hygiene_fee":
-            year = request.POST.get("year")
+            year = int(request.POST.get("year"))
             fees_json = request.POST.get("fees")
 
             if not year or not fees_json:
                 messages.error(request, "Dữ liệu không hợp lệ")
                 return redirect("thuphi")
 
+            # if not fees_json:
+            #     return JsonResponse({"message": "Dữ liệu không hợp lệ hoặc bị thiếu"}, status=400)
+
             try:
                 fees = json.loads(fees_json)
             except json.JSONDecodeError:
+                # return JsonResponse({"error": "JSON lỗi"}, status=400)
                 messages.error(request, "Dữ liệu gửi lên bị lỗi")
                 return redirect("thuphi")
 
@@ -1068,11 +1073,12 @@ def thuphi(request):
             with transaction.atomic():
                 for item in fees:
                     ma_ho = item.get("ma_ho_khau")
-                    trang_thai = item.get("trang_thai")
+                    trang_thai_boolean = item.get("trang_thai")
 
                     if not ma_ho:
                         continue
-
+                        
+                    trang_thai = "Đã thu" if trang_thai_boolean else "Chưa thu"
                     HygieneFee.objects.filter(
                         ma_ho_khau=ma_ho,
                         nam_tinh_phi=year
@@ -1083,6 +1089,30 @@ def thuphi(request):
                 f"Đã lưu trạng thái thu phí vệ sinh cho {len(fees)} hộ (năm {year})"
             )
             return redirect("thuphi")
+        
+    households_data = []
+
+    for hk in HouseholdDetail.objects.all():
+        chu_ho = hk.ten_chu_ho if hk.ten_chu_ho else "Chưa có"
+        so_nhan_khau = HouseholdPeopleMonth.objects.filter(
+        ma_ho_khau=hk.ma_ho_khau
+        ).count()
+
+        fees = []
+        for fee in HygieneFee.objects.filter(ma_ho_khau=hk.ma_ho_khau):
+            fees.append({
+                "year": fee.nam_tinh_phi,
+                "paid": fee.trang_thai,
+                "amount": float(fee.so_tien)
+            })
+
+        households_data.append({
+            "id": hk.ma_ho_khau,
+            "chu": chu_ho,
+            "members": so_nhan_khau,
+            "fees": fees
+        })
+
 
 
     # Lấy dữ liệu hiển thị
@@ -1106,6 +1136,7 @@ def thuphi(request):
         "hygiene_fees": hygiene_fees,
         "selected_year": filter_year,
         "household_people_month": household_people_month,
+        "households_data": json.dumps(list(households_data))
     })
 
 
@@ -1175,24 +1206,13 @@ def thongke_baocao(request):
     tong_nam = sum(item['data']['nam'] for item in stats_nk)
     tong_nu = sum(item['data']['nu'] for item in stats_nk)
 
-    # --- TRUY VẤN TẠM TRÚ THEO THÁNG/NĂM ---
+    # --- 4. TRUY VẤN TẠM TRÚ THEO THÁNG/NĂM (Sử dụng hàm SQL TABLE mới) ---
     with connection.cursor() as cursor:
-        # Truy vấn lấy ma_tam_tru từ hàm TABLE
         cursor.execute("SELECT ma_tam_tru FROM get_temporary_persons_in_month(%s, %s)", [target_month, target_year])
         rows_tt = cursor.fetchall()
-        
-        # Chuyển đổi kết quả thành list ID: [1, 2, 3]
         active_tt_ids = [row[0] for row in rows_tt]
 
-    # Lọc Model dựa trên danh sách ID thu được
     tamtru_list = TemporaryResidence.objects.filter(ma_tam_tru__in=active_tt_ids).order_by('-ngay_bat_dau')
-
-    # Đừng quên đưa 'tamtru_list' vào context trả về
-    context = {
-        # ... các biến khác ...
-        'tamtru_list': tamtru_list,
-        'today': today,
-    }
 
     # --- 5. TẠM VẮNG ---
     tamvang_qs = TemporaryAbsence.objects.filter(trang_thai_hoan_thanh=False)
@@ -1231,21 +1251,9 @@ def thongke_baocao(request):
             'ty_le': ty_le,
             'tong_tien': tong_tien
         })
-
-    # --- BAR CHART: SỐ NHÂN KHẨU THEO THÁNG, NHÓM THEO NĂM ---
-    from django.db.models.functions import ExtractYear, ExtractMonth
-    qs = Person.objects.annotate(year=ExtractYear('ngay_sinh'), month=ExtractMonth('ngay_sinh'))
-    stats = qs.values('year', 'month').annotate(count=Count('ma_nhan_khau')).order_by('year', 'month')
-    years = sorted({row['year'] for row in stats if row['year']})
-    data_by_year = {y: [0]*12 for y in years}
-    for row in stats:
-        y, m = row['year'], row['month']
-        if y and m:
-            data_by_year[y][m-1] = row['count']
-    bar_data = {
-        'years': years,
-        'data_by_year': data_by_year,
-    }
+    is_filtered = False
+    if 'month' in request.GET or 'year' in request.GET:
+        is_filtered = True
     context = {
         'stats_nk': stats_nk,
         'tong_tat_ca': tong_tat_ca,
@@ -1253,6 +1261,7 @@ def thongke_baocao(request):
         'tong_nu': tong_nu,
         'selected_month': target_month,
         'selected_year': target_year,
+        'is_filtered': is_filtered,
         'range_months': range(1, 13),
         'range_years': range(today.year - 5, today.year + 1),
         'tamtru_list': tamtru_list,
@@ -1261,8 +1270,37 @@ def thongke_baocao(request):
         'campaigns': campaigns,
         'campaign_stats': campaign_stats,
         'today': today,
-        'bar_data': bar_data,
     }
+    # Lấy dữ liệu cho năm hiện tại và năm trước
+    years_to_show = list(range(2020, 2026))
+    data_by_year = {}
+    today = date.today()
+    current_year = today.year
+    for y in years_to_show:
+        monthly_counts = []
+        for m in range(1, 13):
+            with connection.cursor() as cursor:
+                # 1. Đếm nhân khẩu thường trú hoạt động trong tháng m/năm y
+                cursor.execute("SELECT count(*) FROM get_active_persons_in_month(%s, %s)", [m, y])
+                count_nk = cursor.fetchone()[0] or 0
+                
+                # 2. Đếm nhân khẩu tạm trú hoạt động trong tháng m/năm y
+                cursor.execute("SELECT count(*) FROM get_temporary_persons_in_month(%s, %s)", [m, y])
+                count_tt = cursor.fetchone()[0] or 0
+                
+                # Tổng số người cư trú thực tế
+                monthly_counts.append(count_nk + count_tt)
+        
+        data_by_year[str(y)] = monthly_counts
+
+    bar_data = {
+        'years': [str(y) for y in years_to_show],
+        'data_by_year': data_by_year,
+        'selected_year': current_year,
+    }
+
+    # Đưa bar_data vào context
+    context['bar_data'] = bar_data
     return render(request, "thongke_baocao.html", context)
 
 # --- API: CHI TIẾT ĐÓNG GÓP THEO ĐỢT ---
@@ -1349,10 +1387,3 @@ def quanly_truycap(request):
 # ==================================================
 def page_not_found(request):
     return render(request, "404.html", status=404)
-
-
-
-
-
-
-
