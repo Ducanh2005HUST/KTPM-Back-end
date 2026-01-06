@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h2 class="page-title">Thống kê - báo cáo cư trú & đóng góp</h2>
+    <h2 class="page-title">Thống kê cư trú & đóng góp</h2>
 </div>
 
 <div class="tabs-container">
@@ -17,19 +17,32 @@
     <div class="tab-content active" id="tab-nhankhau">
         <div class="reports-container">
             <div class="report-section">
+                <!-- Bar chart: Số nhân khẩu theo tháng -->
+                <div class="bar-chart-section">
+                    <h3 class="bar-chart-title">Biến động nhân khẩu trong 12 tháng gần nhất</h3>
+                    <!-- <div class="bar-year-filter">
+                        <label for="yearFilter" class="bar-year-filter-label">Lọc theo năm:</label>
+                        <select id="yearFilter" class="bar-year-filter-select">
+                            {% for y in bar_data.years %}
+                            <option value="{{ y }}" {% if y|add:"0" == selected_year|add:"0" %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div> -->
+                    <canvas id="nhankhauBarChart" height="320" class="bar-chart-canvas"></canvas>
+                </div>
                 <div class="nk-header-row">
                     <h3 class="nk-title">Tổng hợp nhân khẩu theo độ tuổi</h3>
                     <div class="filter-group">
                         <label class="filter-label">Tháng:</label>
                         <select id="filter-month" class="form-control filter-month">
                             {% for m in range_months %}
-                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}</option>
+                            <option value="{{ m }}" {% if m == selected_month1 %}selected{% endif %}>{{ m }}</option>
                             {% endfor %}
                         </select>
                         <label class="filter-label">Năm:</label>
                         <select id="filter-year" class="form-control filter-year">
                             {% for y in range_years %}
-                            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+                            <option value="{{ y }}" {% if y == selected_year1 %}selected{% endif %}>{{ y }}</option>
                             {% endfor %}
                         </select>
                         <button id="btn-filter-nk" class="btn primary filter-btn">Lọc dữ liệu</button>
@@ -48,7 +61,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for item in stats_nk %}
+                            <!-- {% for item in stats_nk %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td style="text-align: left; padding-left: 20px;">{{ item.label }}</td>
@@ -56,30 +69,17 @@
                                 <td>{{ item.data.nam }}</td>
                                 <td>{{ item.data.nu }}</td>
                             </tr>
-                            {% endfor %}
+                            {% endfor %} -->
                         </tbody>
                         <tfoot class="excel-tfoot">
-                            <tr>
+                            <!-- <tr>
                                 <td colspan="2">TỔNG CỘNG</td>
                                 <td>{{ tong_tat_ca }}</td>
                                 <td>{{ tong_nam }}</td>
                                 <td>{{ tong_nu }}</td>
-                            </tr>
+                            </tr> -->
                         </tfoot>
                     </table>
-                </div>
-                <!-- Bar chart: Số nhân khẩu theo tháng -->
-                <div class="bar-chart-section">
-                    <h4 class="bar-chart-title">Biểu đồ số nhân khẩu theo từng tháng</h4>
-                    <div class="bar-year-filter">
-                        <label for="yearFilter" class="bar-year-filter-label">Lọc theo năm:</label>
-                        <select id="yearFilter" class="bar-year-filter-select">
-                            {% for y in bar_data.years %}
-                            <option value="{{ y }}" {% if y|add:"0" == selected_year|add:"0" %}selected{% endif %}>{{ y }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <canvas id="nhankhauBarChart" height="320"></canvas>
                 </div>
             </div>
         </div>
@@ -88,7 +88,7 @@
     <div class="tab-content" id="tab-tamtru">
         <div class="reports-container">
             <div class="report-section">
-                <h3>Danh sách nhân khẩu tạm trú</h3>
+                <h3>Danh sách người tạm trú</h3>
                 <div class="excel-table">
                     <table>
                         <thead>
@@ -110,10 +110,10 @@
                                 <td>{{ item.ngay_bat_dau|date:"d/m/Y" }}</td>
                                 <td>{{ item.ngay_ket_thuc|date:"d/m/Y" }}</td>
                                 <td>
-                                    {% if item.trang_thai_hoan_thanh %} 
-                                        <span style="color: gray;">Đã kết thúc</span> 
-                                    {% else %} 
-                                        <strong style="color: green;">Đang tạm trú</strong> 
+                                    {% if item.ngay_ket_thuc >= today %}
+                                        <strong style="color: green;">Đang tạm trú</strong>
+                                    {% else %}
+                                        <span style="color: gray;">Đã kết thúc</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -121,8 +121,8 @@
                             <tr><td colspan="6" style="text-align: center;">Không có dữ liệu tạm trú</td></tr>
                             {% endfor %}
                             <tr class="total-row">
-                                <td colspan="5"><strong>Tổng số người tạm trú</strong></td>
-                                <td><strong>{{ tamtru_list|length }} người</strong></td>
+                                <td colspan="5">Tổng số người tạm trú</td>
+                                <td>{{ tamtru_list|length }} người</td>
                             </tr>
                         </tbody>
 
@@ -135,7 +135,7 @@
     <div class="tab-content" id="tab-tamvang">
         <div class="reports-container">
             <div class="report-section">
-                <h3>Danh sách đang tạm vắng</h3>
+                <h3>Danh sách nhân khẩu tạm vắng</h3>
                 <div class="excel-table">
                     <table id="temporaryAbsentTable">
                         <thead>
@@ -145,7 +145,7 @@
                                 <th>Họ tên</th>
                                 <th>Từ ngày</th>
                                 <th>Đến ngày</th>
-                                <th>Lý do</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -156,14 +156,20 @@
                                 <td>{{ item.ho_ten }}</td>
                                 <td>{{ item.tu_ngay|date:"d/m/Y" }}</td>
                                 <td>{{ item.den_ngay|date:"d/m/Y" }}</td>
-                                <td>{{ item.ly_do }}</td>
+                                <td>
+                                    {% if item.den_ngay >= today %}
+                                        <strong style="color: green;">Đang tạm trú</strong>
+                                    {% else %}
+                                        <span style="color: gray;">Đã kết thúc</span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% empty %}
                             <tr><td colspan="6" class="no-data" style="text-align: center;">Không có dữ liệu tạm vắng</td></tr>
                             {% endfor %}
                             <tr class="total-row">
-                                <td colspan="5"><strong>Tổng số người tạm vắng</strong></td>
-                                <td><strong>{{ list_dang_vang|length }} người</strong></td>
+                                <td colspan="5">Tổng số người tạm vắng</td>
+                                <td>{{ list_dang_vang|length }} người</td>
                             </tr>
                         </tbody>
                     </table>
@@ -212,7 +218,7 @@
         <div class="reports-container">
             <div class="report-section">
                 <h3>Tổng hợp tất cả đợt đóng góp</h3>
-                <div class="excel-table">
+                <div class="excel-table contribution-table">
                     <table id="donationSummaryTable">
                         <thead>
                             <tr>
@@ -221,8 +227,8 @@
                                 <th>Bắt đầu</th>
                                 <th>Kết thúc</th>
                                 <th>Hộ đã tham gia</th>
-                                <th>Hộ chưa tham gia</th>
-                                <th>Tỷ lệ (%)</th>
+                                <!-- <th>Hộ chưa tham gia</th>
+                                <th>Tỷ lệ (%)</th> -->
                                 <th>Tổng thu</th>
                             </tr>
                         </thead>
@@ -234,8 +240,8 @@
                                 <td>{{ item.bat_dau|date:"d/m/Y" }}</td>
                                 <td>{{ item.ket_thuc|date:"d/m/Y" }}</td>
                                 <td>{{ item.da_nop }}</td>
-                                <td>{{ item.chua_nop }}</td>
-                                <td>{{ item.ty_le }}%</td>
+                                <!-- <td>{{ item.chua_nop }}</td>
+                                <td>{{ item.ty_le }}%</td> -->
                                 <td style="font-weight: bold;">{{ item.tong_tien|floatformat:0 }}đ</td>
                             </tr>
                             {% endfor %}
@@ -255,7 +261,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="excel-table">
+                <div class="excel-table contribution-table">
                     <table id="donationDetailTable">
                         <thead>
                             <tr>
@@ -274,11 +280,11 @@
             <div class="report-section">
                 <h3>Tra cứu đóng góp theo hộ khẩu</h3>
                 <div class="filter-row" style="margin-bottom: 15px;">
-                    <label style="margin-left: 15px; margin-right: 10px;">Nhập</label>
+                    <label style="margin-right: 10px;">Nhập</label>
                     <input type="text" id="householdSearch" placeholder=" VD: HK-001 " style="width: 227px;">
                     <button id="searchHouseholdBtn" class="btn primary">Tìm kiếm</button>
                 </div>
-                <div class="excel-table">
+                <div class="excel-table contribution-table">
                     <table id="householdDonationTable">
                         <thead>
                             <tr>
@@ -311,7 +317,7 @@ window.barChartData = {{ bar_data|safe }};
 <script>
     // Đảm bảo các thành phần trang đã tải xong
     window.addEventListener('load', function() {
-        alert("Đã lọc dữ liệu thành công cho Tháng {{ selected_month }} Năm {{ selected_year }}!");
+        alert("Đã lọc dữ liệu thành công cho Tháng {{ selected_month1 }} Năm {{ selected_year1 }}!");
     });
 </script>
 {% endif %}

@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const feeList = document.getElementById('feeList');
 
-    function formatVnd(n){ return n.toLocaleString('vi-VN') + 'đ'; }
+    function formatVnd(n){ 
+        if (typeof n !== 'number') return '0đ';
+        return n.toLocaleString('vi-VN') + 'đ'; 
+    }
     
     // Populate year dropdowns
     function populateYearDropdowns() {
@@ -78,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function(){
                             chu: h.chu,
                             members: h.members,
                             year: f.year,
-                            //paid: f.paid,
+                            paid: Boolean(f.paid),
                             amount: f.amount,
                         });
                     }
@@ -101,9 +104,13 @@ document.addEventListener('DOMContentLoaded', function(){
                             <td>${record.year}</td>
                             <td>${formatVnd(total)}</td>
                             <td><span class="status ${record.paid ? 'paid' : 'unpaid'}">${record.paid ? 'Đã thu' : 'Chưa thu'}</span></td>
-                            <td><button class="btn-action" onclick="handleFeeAction(this, '${record.id}', ${record.year})">${record.paid ? 'Hoàn tác' : 'Thu phí'}</button></td>`;
+                            <td style="display: flex; gap: 15px;">
+                                <button class="btn-view" onclick="handleFeeView('${record.id}', ${record.year})">Xem chi tiết</button>
+                                <button class="btn-action" onclick="handleFeeAction(this, '${record.id}', ${record.year})">${record.paid ? 'Hoàn tác' : 'Thu phí'}</button>
+                            </td>`;
             feeList.appendChild(tr);
         });
+
     }
     
     // Initialize page
@@ -170,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
             const formData = new FormData();
             formData.append("action", "create_hygiene_fee"); // 👈 ACTION Ở ĐÂY
-            formData.append("year", feeYearSelect);
+            formData.append("year", selectedYear);
 
             fetch("/thuphi/", {
                 method: "POST",
@@ -179,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 },
                 body: formData
             })
-            .then(res => res.json())
             .then(data => {
                 alert(data.message || "Đã tạo phiếu thu");
                 location.reload();
@@ -209,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             
             alert(`Đã tạo phiếu thu cho năm ${selectedYear} cho tất cả hộ gia đình!`);
-            console.log(action)
+            //console.log(action)
         });
     }
     
@@ -246,8 +252,9 @@ document.addEventListener('DOMContentLoaded', function(){
             // Nếu mọi thứ OK, để Form tự gửi (không dùng e.preventDefault() ở đây)
             console.log("Đang gửi dữ liệu về Server...");
         });
-        
-        const saveBtn = document.getElementById("saveFeeList");
+    }   
+
+    const saveBtn = document.getElementById("saveFeeList");
 
         if (saveBtn) {
             saveBtn.addEventListener("click", async function () {
@@ -271,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         if (String(f.year) === String(selectedYear)) {
                             payload.push({
                                 ma_ho_khau: h.id,
-                                trang_thai: f.paid === true
+                                trang_thai: f.paid
                             });
                         }
                     });
@@ -305,13 +312,11 @@ document.addEventListener('DOMContentLoaded', function(){
                 location.reload();
 
             } catch (err) {
-                console.error(err);
+                // console.error(err);
                 alert("❌ Lưu thất bại");
             }
         });
     }
-}   
-
 });
 
 // Global function for fee action (Thu phí/Hoàn tác)
@@ -346,6 +351,59 @@ function handleFeeAction(btn, householdId, year) {
     setTimeout(() => {
         statusCell.style.transform = 'scale(1)';
     }, 150);
+}
+
+function handleFeeView(householdId, year) {
+    fetch(`/get-household-monthly-data/?year=${year}&household_id=${householdId}`)
+        .then(res => {
+            if (!res.ok) throw new Error("API error");
+            return res.json();
+        })
+        .then(data => {
+            renderFeeDetailModal(data, householdId, year);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Không thể tải chi tiết hộ khẩu");
+        });
+}
+
+function renderFeeDetailModal(data, householdId, year) {
+    const modal = document.getElementById("feeDetailModal");
+    const body = document.getElementById("feeDetailBody");
+    const title = document.getElementById("feeDetailTitle");
+    const totalEl = document.getElementById("feeDetailTotal");
+
+    title.innerText = `Chi tiết hộ ${householdId} năm ${year}`;
+    body.innerHTML = "";
+
+    let totalPeople = 0;
+
+    data.forEach(item => {
+        const nk = item.so_nhan_khau || 0;
+        const tt = item.so_tam_tru || 0;
+
+        totalPeople += nk + tt;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>Tháng ${item.thang}</td>
+            <td>${nk}</td>
+            <td>${tt}</td>
+            <td>${((nk + tt) * 6000).toLocaleString('vi-VN')}đ</td>
+        `;
+        body.appendChild(tr);
+    });
+
+    const totalMoney = totalPeople * 6000;
+
+    totalEl.innerText = `Thành tiền: ${(totalMoney).toLocaleString('vi-VN')}đ`;
+
+    modal.style.display = "block";
+}
+
+function closeFeeDetailModal() {
+    document.getElementById("feeDetailModal").style.display = "none";
 }
 
 // Modal functions
@@ -395,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
     
     // Handle form submission
     // Hàm này để nút "Tạo đợt đóng góp" gọi tới
@@ -439,21 +498,5 @@ function openCreateCampaignModal() {
     const modal = document.getElementById('createCampaignModal');
     if (modal) modal.style.display = 'block';
 }
-function validateAndSubmit() {
-    const form = document.getElementById('createCampaignForm');
-    const name = document.getElementById('campaignName').value;
-    const start = document.getElementById('startDate').value;
-    const end = document.getElementById('endDate').value;
 
-    if (!name || !start || !end) {
-        alert("Vui lòng nhập đầy đủ thông tin!");
-        return;
-    }
 
-    if (new Date(end) <= new Date(start)) {
-        alert("Ngày kết thúc phải sau ngày bắt đầu!");
-        return;
-    }
-
-    form.submit(); // Gửi về Django để check trùng trong DB
-}

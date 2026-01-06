@@ -6,6 +6,15 @@
 {% endblock %}
 
 {% block content %}
+<!-- <div id="loading-overlay" style="display: flex;">
+    <div class="spinner"></div>
+    <p>Đang tải dữ liệu...</p>
+</div> -->
+
+<div id="main-content" style="display: none;">
+    </div>
+
+
 <h2>Quản lý thu phí - đóng góp</h2>
 
 <div class="fee-tabs">
@@ -15,7 +24,7 @@
 
 <div class="fee-container">
     <section id="tab-fee" class="fee-panel active">
-        <form action="POST" id="feeForm"></form>
+        <form method="POST" id="feeForm">
             <div class="fee-form">
                 <div class="row">
                     <label>Chọn năm lập phiếu</label>
@@ -140,6 +149,36 @@
     </section>
 </div>
 
+<div id="feeDetailModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="feeDetailTitle"></h4>
+            <span class="modal-close" onclick="closeFeeDetailModal()">&times;</span>
+        </div>
+
+        <div class="modal-body">
+            <table class="modal-table">
+                <thead>
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Số nhân khẩu</th>
+                        <th>Số tạm trú</th>
+                        <th>Phí vệ sinh</th>
+                    </tr>
+                </thead>
+                <tbody id="feeDetailBody"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" id="feeDetailTotal"
+                            style="text-align:right;font-weight:bold;">
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div id="createCampaignModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -193,7 +232,7 @@
 </script> -->
 
 <script>
-    window.householdsData = JSON.parse('{{ households_data|escapejs }}');
+    window.householdsData = {{ households_data|safe}};
 </script>
 
 <script src="{% static 'js/thuphi.js' %}" defer></script>
